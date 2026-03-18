@@ -5,19 +5,21 @@
  */
 
 // ─── Environment ─────────────────────────────────────────────────────────────
-define('BL_ENV',      getenv('BL_ENV') ?: 'production');  // 'development' | 'production'
-define('BL_DEBUG',    BL_ENV === 'development');
+// Change to 'production' before deploying to cPanel
+define('BL_ENV',   getenv('BL_ENV') ?: 'development');
+define('BL_DEBUG', BL_ENV === 'development');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
-define('DB_HOST',     getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME',     getenv('DB_NAME') ?: 'your_db_name');   // <-- set in cPanel
-define('DB_USER',     getenv('DB_USER') ?: 'your_db_user');   // <-- set in cPanel
-define('DB_PASS',     getenv('DB_PASS') ?: 'your_db_pass');   // <-- set in cPanel
-define('DB_CHARSET',  'utf8mb4');
+// LOCAL (Laragon defaults) — change these for cPanel
+define('DB_HOST',    getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME',    getenv('DB_NAME') ?: 'bovilogic');
+define('DB_USER',    getenv('DB_USER') ?: 'root');
+define('DB_PASS',    getenv('DB_PASS') ?: '');           // Laragon MySQL has no password by default
+define('DB_CHARSET', 'utf8mb4');
 
 // ─── Application ─────────────────────────────────────────────────────────────
 define('APP_NAME',    'BoviLogic');
-define('APP_URL',     getenv('APP_URL') ?: 'https://bovilogic.co.za');
+define('APP_URL',     getenv('APP_URL') ?: 'http://localhost/bovilogic');
 define('APP_VERSION', '1.0.0');
 define('APP_ROOT',    dirname(__DIR__));
 
