@@ -1,0 +1,41 @@
+{
+  "name": "BoviLogic",
+  "short_name": "BoviLogic",
+  "description": "Cattle Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1B5E20",
+  "background_color": "#1B5E20",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Animal",
+      "url": "/animal-form.php",
+      "description": "Add a new animal"
+    },
+    {
+      "name": "View Animals",
+      "url": "/animals.php",
+      "description": "View all animals"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+# BoviLogic – Apache Configuration
+
+Options -Indexes
+ServerSignature Off
+
+# ─── Security Headers ────────────────────────────────────────────────────────
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), camera=(), microphone=()"
+  Header always unset X-Powered-By
+</IfModule>
+
+# ─── Block direct access to sensitive directories ────────────────────────────
+<FilesMatch "^(config|lib|lang|db)/">
+  Order deny,allow
+  Deny from all
+</FilesMatch>
+
+# Protect lib/ and db/ directories
+RedirectMatch 403 ^/lib/
+RedirectMatch 403 ^/db/
+RedirectMatch 403 ^/lang/
+
+# ─── HTTPS redirect (uncomment when SSL is active) ───────────────────────────
+# <IfModule mod_rewrite.c>
+#   RewriteEngine On
+#   RewriteCond %{HTTPS} off
+#   RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# ─── Cache Control for static assets ────────────────────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css              "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType image/png             "access plus 1 year"
+  ExpiresByType image/jpeg            "access plus 1 year"
+  ExpiresByType image/svg+xml         "access plus 1 month"
+  ExpiresByType image/x-icon          "access plus 1 year"
+  ExpiresByType application/manifest+json "access plus 1 day"
+</IfModule>
+
+# Service worker – no cache (always fresh)
+<FilesMatch "sw\.js$">
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </IfModule>
+</FilesMatch>
+
+# ─── PHP Settings ────────────────────────────────────────────────────────────
+<IfModule mod_php.c>
+  php_flag display_errors Off
+  php_value upload_max_filesize 10M
+  php_value post_max_size 10M
+  php_value max_execution_time 60
+</IfModule>
+
+# ─── Charset ─────────────────────────────────────────────────────────────────
+AddDefaultCharset UTF-8

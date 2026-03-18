@@ -1,0 +1,33 @@
+# BoviLogic .gitignore
+
+# Sensitive config (override in production)
+lib/config.local.php
+.env
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Backups
+backups/
+*.sql.gz
+*.sql.bz2
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log
+error_log
+
+# Node (if using build tools later)
+node_modules/
