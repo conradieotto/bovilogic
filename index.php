@@ -148,13 +148,11 @@ require_once __DIR__ . '/templates/header.php';
   }
 </script>
 <!-- Page Header -->
-<header class="page-header">
-  <h1>BoviLogic</h1>
-  <span id="header-date" style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.6);letter-spacing:0.03em;margin-right:auto;padding-left:12px"></span>
-  <button class="btn-icon" onclick="window.location='/more.php'" aria-label="More">
-    <svg viewBox="0 0 24 24"><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-  </button>
-</header>
+<div class="page-wrap">
+<div class="page-header">
+  <h1><i class="fa-solid fa-gauge-high"></i> Dashboard</h1>
+  <span id="header-date" class="text-muted text-sm"></span>
+</div>
 
 <!-- Hero strip -->
 <div class="dash-hero">

@@ -11,12 +11,10 @@ $pageTitle = 'nav_more';
 require_once __DIR__ . '/templates/header.php';
 ?>
 
-<header class="page-header">
-  <a href="/index.php" class="btn-icon">
-    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-  </a>
-  <h1><?= t('nav_more') ?></h1>
-</header>
+<div class="page-wrap">
+<div class="page-header">
+  <h1><i class="fa-solid fa-ellipsis"></i> <?= t('nav_more') ?></h1>
+</div>
 
 <!-- User info -->
 <div style="padding:16px 16px 0">

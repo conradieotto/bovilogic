@@ -12,15 +12,11 @@ $pageTitle = 'users';
 require_once __DIR__ . '/templates/header.php';
 ?>
 
-<header class="page-header">
-  <a href="/more.php" class="btn-icon">
-    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-  </a>
-  <h1><?= t('users') ?></h1>
-  <button class="btn-icon" id="btn-add-user">
-    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-  </button>
-</header>
+<div class="page-wrap">
+<div class="page-header">
+  <h1><i class="fa-solid fa-users"></i> <?= t('users') ?></h1>
+  <button class="btn btn-primary btn-sm" id="btn-add-user"><i class="fa-solid fa-plus"></i> Add User</button>
+</div>
 
 <div id="users-list"><div class="page-loader"><div class="spinner"></div></div></div>
 

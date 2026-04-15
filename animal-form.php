@@ -26,12 +26,11 @@ $pageTitle = $id ? 'edit_animal' : ($isCalfMode ? 'add_calf' : 'add_animal');
 require_once __DIR__ . '/templates/header.php';
 ?>
 
-<header class="page-header">
-  <a href="<?= $id ? "/animal-detail.php?id=$id" : (($_GET['from'] ?? '') === 'quick' ? '/quick-actions.php' : '/animals.php') ?>" class="btn-icon">
-    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-  </a>
-  <h1><?= $id ? t('edit_animal') : ($isCalfMode ? t('add_calf') : t('add_animal')) ?></h1>
-</header>
+<div class="page-wrap">
+<div class="page-header">
+  <h1><i class="fa-solid fa-cow"></i> <?= $id ? t('edit_animal') : ($isCalfMode ? t('add_calf') : t('add_animal')) ?></h1>
+  <a href="<?= $id ? "/animal-detail.php?id=$id" : (($_GET['from'] ?? '') === 'quick' ? '/quick-actions.php' : '/animals.php') ?>" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
+</div>
 
 <div style="padding:16px;">
 <form id="animal-form">
