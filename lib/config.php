@@ -4,28 +4,32 @@
  * Edit DB_* constants to match your cPanel MySQL credentials.
  */
 
+// ─── Local overrides first (production credentials — never committed to git) ──
+$localConfig = __DIR__ . '/config.local.php';
+if (file_exists($localConfig)) {
+    require $localConfig;
+}
+
 // ─── Environment ─────────────────────────────────────────────────────────────
-// Change to 'production' before deploying to cPanel
-define('BL_ENV',   getenv('BL_ENV') ?: 'development');
-define('BL_DEBUG', BL_ENV === 'development');
+if (!defined('BL_ENV'))   define('BL_ENV',   getenv('BL_ENV') ?: 'development');
+if (!defined('BL_DEBUG')) define('BL_DEBUG', BL_ENV === 'development');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
-// LOCAL (Laragon defaults) — change these for cPanel
-define('DB_HOST',    'localhost');
-define('DB_NAME',    'bovilogic');
-define('DB_USER',    'root');
-define('DB_PASS',    '');           // Laragon MySQL has no password by default
-define('DB_CHARSET', 'utf8mb4');
+if (!defined('DB_HOST'))    define('DB_HOST',    'localhost');
+if (!defined('DB_NAME'))    define('DB_NAME',    'bovilogic');
+if (!defined('DB_USER'))    define('DB_USER',    'root');
+if (!defined('DB_PASS'))    define('DB_PASS',    '');
+if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 
 // ─── Application ─────────────────────────────────────────────────────────────
-define('APP_NAME',    'BoviLogic');
-define('APP_URL',     getenv('APP_URL') ?: 'http://bovilogic.test');
-define('APP_VERSION', '1.2.1');
-define('APP_ROOT',    dirname(__DIR__));
+if (!defined('APP_NAME'))    define('APP_NAME',    'BoviLogic');
+if (!defined('APP_URL'))     define('APP_URL',     getenv('APP_URL') ?: 'http://bovilogic.test');
+if (!defined('APP_VERSION')) define('APP_VERSION', '1.2.1');
+if (!defined('APP_ROOT'))    define('APP_ROOT',    dirname(__DIR__));
 
 // ─── Session ─────────────────────────────────────────────────────────────────
-define('SESSION_NAME',     'bl_session');
-define('SESSION_LIFETIME', 60 * 60 * 8);  // 8 hours
+if (!defined('SESSION_NAME'))     define('SESSION_NAME',     'bl_session');
+if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 60 * 60 * 8);  // 8 hours
 
 // ─── Timezone ────────────────────────────────────────────────────────────────
 date_default_timezone_set('Africa/Johannesburg');
@@ -37,10 +41,4 @@ if (BL_DEBUG) {
 } else {
     ini_set('display_errors', 0);
     error_reporting(0);
-}
-
-// ─── Local overrides (production credentials — never committed to git) ────────
-$localConfig = __DIR__ . '/config.local.php';
-if (file_exists($localConfig)) {
-    require $localConfig;
 }
