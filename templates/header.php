@@ -9,7 +9,9 @@
   <meta name="apple-mobile-web-app-title" content="BoviLogic">
   <title><?= t($pageTitle ?? 'app_name') ?> – BoviLogic</title>
   <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/icon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/icons/icon-16.png">
   <link rel="icon" href="/assets/icons/favicon.ico">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
   <link rel="stylesheet" href="/assets/css/app.css?v=<?= APP_VERSION ?>">

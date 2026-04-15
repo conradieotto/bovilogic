@@ -18,7 +18,7 @@ require_once __DIR__ . '/templates/header.php';
 
   <!-- OPTION 1: Photo background — drop your image at assets/images/splash.jpg -->
   <img id="splash-bg-img"
-       src="/assets/images/splash.jpg.jpeg"
+       src="/assets/images/splash.jpg"
        onerror="this.style.display='none'"
        alt="">
 
