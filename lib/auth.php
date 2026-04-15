@@ -106,8 +106,8 @@ function setPendingUser(array $user): void {
     $_SESSION['2fa_pending_role']   = $user['role'];
     $_SESSION['2fa_pending_lang']   = $user['language'];
     $_SESSION['2fa_pending_perms']  = $user['permissions'] ?? null;
-    // Flag whether they need to set up 2FA or just verify it
-    $_SESSION['2fa_needs_setup']    = !$user['totp_enabled'];
+    // totp_enabled may not exist yet if migration 004 hasn't run
+    $_SESSION['2fa_needs_setup']    = empty($user['totp_enabled']);
 }
 
 /**

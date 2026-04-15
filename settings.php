@@ -8,9 +8,12 @@ requireLogin();
 $user = currentUser();
 loadLanguage($user['language']);
 
-// Fetch 2FA status for current user
-require_once __DIR__ . '/lib/db.php';
-$twoFaEnabled = (bool)DB::val('SELECT totp_enabled FROM users WHERE id = ?', [$user['id']]);
+// Fetch 2FA status — graceful fallback if migration hasn't run yet
+try {
+    $twoFaEnabled = (bool)DB::val('SELECT totp_enabled FROM users WHERE id = ?', [$user['id']]);
+} catch (Throwable $e) {
+    $twoFaEnabled = false;
+}
 
 $pageTitle = 'settings';
 require_once __DIR__ . '/templates/header.php';

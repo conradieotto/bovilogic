@@ -23,10 +23,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = attemptLogin($email, $password);
         if ($user) {
             setcookie('bl_lang', $user['language'], time() + 60*60*24*365, '/');
-            setPendingUser($user);
-            // Route to setup or verify
-            $dest = $user['totp_enabled'] ? '/verify-2fa.php' : '/setup-2fa.php';
-            header('Location: ' . APP_URL . $dest);
+            // Check if 2FA columns exist before entering 2FA flow
+            $has2faCol = false;
+            try {
+                $cols = \DB::rows("SHOW COLUMNS FROM users LIKE 'totp_enabled'");
+                $has2faCol = !empty($cols);
+            } catch (Throwable $e) {}
+
+            if ($has2faCol) {
+                setPendingUser($user);
+                $dest = !empty($user['totp_enabled']) ? '/verify-2fa.php' : '/setup-2fa.php';
+                header('Location: ' . APP_URL . $dest);
+            } else {
+                // Migration not yet run — log in directly without 2FA
+                session_regenerate_id(true);
+                $_SESSION['user_id']          = $user['id'];
+                $_SESSION['user_name']        = $user['name'];
+                $_SESSION['user_email']       = $user['email'];
+                $_SESSION['user_role']        = $user['role'];
+                $_SESSION['user_language']    = $user['language'];
+                $_SESSION['user_permissions'] = null;
+                \DB::exec('UPDATE users SET last_login = NOW() WHERE id = ?', [$user['id']]);
+                header('Location: ' . APP_URL . '/index.php');
+            }
             exit;
         } else {
             $error = t('invalid_login');
