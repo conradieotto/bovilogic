@@ -118,9 +118,13 @@ function togglePermissions() {
 
 function loadUsers() {
   fetch('/api/users.php')
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
     .then(res => {
       const el = document.getElementById('users-list');
+      if (!res.success) { el.innerHTML = `<div class="empty-state"><p>Error: ${escHtml(res.message||'Could not load users.')}</p></div>`; return; }
       if (!res.data?.length) { el.innerHTML = '<div class="empty-state"><p>No users.</p></div>'; return; }
       el.innerHTML = '<div class="list-card">' + res.data.map(u => {
         const isSelf  = u.id == SELF_ID;
@@ -155,6 +159,10 @@ function loadUsers() {
           </div>
         </div>`;
       }).join('') + '</div>';
+    })
+    .catch(err => {
+      document.getElementById('users-list').innerHTML =
+        `<div class="empty-state"><i class="fa-solid fa-triangle-exclamation" style="font-size:2rem;color:var(--orange);margin-bottom:12px"></i><p>Could not load users.</p><p class="text-xs text-muted">${escHtml(err.message)}</p></div>`;
     });
 }
 
