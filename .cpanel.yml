@@ -1,4 +1,4 @@
 ---
 deployment:
   tasks:
-    - /usr/bin/rsync -av --exclude='.git' --exclude='.cpanel.yml' --exclude='lib/config.local.php' . ~/public_html/
+    - /usr/bin/rsync -av --exclude='.git' --exclude='.cpanel.yml' --exclude='lib/config.local.php' . /home/bovilogicco/public_html/
