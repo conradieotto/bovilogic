@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/activity_logger.php';
 
+ob_start();
 header('Content-Type: application/json');
 $user   = apiRequireLogin();
 $method = $_SERVER['REQUEST_METHOD'];
@@ -76,8 +77,8 @@ switch ($method) {
 
         $animalId = DB::insert(
             'INSERT INTO animals (uuid, ear_tag, rfid, breed, sex, dob, farm_id, herd_id,
-              mother_id, father_id, category, breeding_status, animal_status, comments, created_by)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+              mother_id, father_id, category, breeding_status, breeding_date, animal_status, comments, created_by)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
             [
                 DB::uuid(), $tag,
                 $b['rfid']    ?? null,
@@ -88,8 +89,9 @@ switch ($method) {
                 $b['herd_id'] ?: null,
                 $b['mother_id'] ?: null,
                 $b['father_id'] ?: null,
-                $b['category'] ?? 'calf',
+                $b['category'] ?? 'breeding_cow',
                 $b['breeding_status'] ?? 'open',
+                $b['breeding_date']   ?: null,
                 $b['animal_status']   ?? 'active',
                 $b['comments'] ?? null,
                 $user['id'],
@@ -97,7 +99,7 @@ switch ($method) {
         );
 
         // If calf – create calving record and update mother
-        if (!empty($b['mother_id']) && ($b['category'] ?? '') === 'calf' && !empty($b['dob'])) {
+        if (!empty($b['mother_id']) && in_array($b['category'] ?? '', ['bull_calf','heifer_calf','calf']) && !empty($b['dob'])) {
             DB::insert(
                 'INSERT INTO calving (uuid, dam_id, calf_id, calving_date, created_by) VALUES (?,?,?,?,?)',
                 [DB::uuid(), $b['mother_id'], $animalId, $b['dob'], $user['id']]
@@ -137,29 +139,74 @@ switch ($method) {
         $exists = DB::val('SELECT id FROM animals WHERE ear_tag = ? AND id != ?', [$tag, $id]);
         if ($exists) jsonError('Ear tag already used by another animal.');
 
-        DB::exec(
-            'UPDATE animals SET ear_tag=?, rfid=?, breed=?, sex=?, dob=?, farm_id=?, herd_id=?,
-              mother_id=?, father_id=?, category=?, breeding_status=?, animal_status=?, comments=?
-             WHERE id=?',
-            [
-                $tag, $b['rfid'] ?? null, $b['breed'] ?? null,
-                $b['sex'] ?? 'female', $b['dob'] ?: null,
-                $b['farm_id'] ?: null, $b['herd_id'] ?: null,
-                $b['mother_id'] ?: null, $b['father_id'] ?: null,
-                $b['category'] ?? 'calf',
-                $b['breeding_status'] ?? 'open',
-                $b['animal_status']   ?? 'active',
-                $b['comments'] ?? null, $id,
-            ]
-        );
+        $newStatus  = $b['animal_status'] ?? 'active';
+        $statusDate = in_array($newStatus, ['dead', 'sold']) ? ($b['status_date'] ?: date('Y-m-d')) : null;
+        $statusNotes = in_array($newStatus, ['dead', 'sold']) ? ($b['status_notes'] ?? null) : null;
+
+        try {
+            DB::exec(
+                'UPDATE animals SET ear_tag=?, rfid=?, breed=?, sex=?, dob=?, farm_id=?, herd_id=?,
+                  mother_id=?, father_id=?, category=?, breeding_status=?, breeding_date=?,
+                  animal_status=?, status_date=?, status_notes=?, comments=?
+                 WHERE id=?',
+                [
+                    $tag, $b['rfid'] ?? null, $b['breed'] ?? null,
+                    $b['sex'] ?? 'female', $b['dob'] ?: null,
+                    $b['farm_id'] ?: null, $b['herd_id'] ?: null,
+                    $b['mother_id'] ?: null, $b['father_id'] ?: null,
+                    $b['category'] ?? 'breeding_cow',
+                    $b['breeding_status'] ?? 'open',
+                    $b['breeding_date']   ?: null,
+                    $newStatus, $statusDate, $statusNotes,
+                    $b['comments'] ?? null, $id,
+                ]
+            );
+        } catch (Throwable $e) {
+            if (str_contains($e->getMessage(), 'status_date') || str_contains($e->getMessage(), 'status_notes') || str_contains($e->getMessage(), 'Unknown column')) {
+                DB::exec(
+                    'UPDATE animals SET ear_tag=?, rfid=?, breed=?, sex=?, dob=?, farm_id=?, herd_id=?,
+                      mother_id=?, father_id=?, category=?, breeding_status=?, breeding_date=?, animal_status=?, comments=?
+                     WHERE id=?',
+                    [
+                        $tag, $b['rfid'] ?? null, $b['breed'] ?? null,
+                        $b['sex'] ?? 'female', $b['dob'] ?: null,
+                        $b['farm_id'] ?: null, $b['herd_id'] ?: null,
+                        $b['mother_id'] ?: null, $b['father_id'] ?: null,
+                        $b['category'] ?? 'breeding_cow',
+                        $b['breeding_status'] ?? 'open',
+                        $b['breeding_date']   ?: null,
+                        $newStatus,
+                        $b['comments'] ?? null, $id,
+                    ]
+                );
+            } else {
+                throw $e;
+            }
+        }
         logActivity('animal', $id, 'update', "Animal updated: $tag");
         jsonSuccess(['id' => $id]);
 
     case 'DELETE':
         if ($user['role'] !== 'super_admin') jsonForbidden();
         if (!$id) jsonError('Missing ID.');
-        DB::exec("UPDATE animals SET animal_status = 'dead' WHERE id = ?", [$id]);
-        logActivity('animal', $id, 'delete', 'Animal marked dead');
+        // Remove linked records first to avoid FK constraint errors
+        DB::exec('DELETE FROM weights       WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM vaccinations  WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM treatments    WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM events        WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM sales         WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM purchases     WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM mortality     WHERE animal_id = ?', [$id]);
+        DB::exec('DELETE FROM calving WHERE dam_id = ?', [$id]); // remove cow's own calving records if cow is deleted
+        // Preserve ear tag in calving record before unlinking, so mother's history stays readable
+        $tag = DB::val('SELECT ear_tag FROM animals WHERE id = ?', [$id]);
+        try {
+            DB::exec('UPDATE calving SET calf_tag = ?, calf_id = NULL WHERE calf_id = ?', [$tag, $id]);
+        } catch (Throwable $e) {
+            DB::exec('UPDATE calving SET calf_id = NULL WHERE calf_id = ?', [$id]);
+        }
+        DB::exec('DELETE FROM animals WHERE id = ?', [$id]);
+        logActivity('animal', $id, 'delete', 'Animal deleted');
         jsonSuccess(null, 'Deleted');
 
     default:

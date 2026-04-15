@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/activity_logger.php';
 
+ob_start();
 header('Content-Type: application/json');
 $user     = apiRequireLogin();
 $method   = $_SERVER['REQUEST_METHOD'];
@@ -18,18 +19,17 @@ switch ($method) {
         }
         if (!$animalId) jsonError('animal_id required');
         $weights = DB::rows(
-            'SELECT * FROM weights WHERE animal_id = ? ORDER BY weigh_date DESC',
+            'SELECT * FROM weights WHERE animal_id = ? ORDER BY weigh_date ASC',
             [$animalId]
         );
-        // Calculate ADG between consecutive weights
+        // Calculate ADG: assign gain to the newer entry (i+1)
         for ($i = 0; $i < count($weights) - 1; $i++) {
-            $d1   = new DateTime($weights[$i+1]['weigh_date']);
-            $d2   = new DateTime($weights[$i]['weigh_date']);
+            $d1   = new DateTime($weights[$i]['weigh_date']);
+            $d2   = new DateTime($weights[$i+1]['weigh_date']);
             $days = max(1, $d1->diff($d2)->days);
-            $weights[$i]['adg'] = round(
-                (floatval($weights[$i]['weight_kg']) - floatval($weights[$i+1]['weight_kg'])) / $days,
-                3
-            );
+            $diff = floatval($weights[$i+1]['weight_kg']) - floatval($weights[$i]['weight_kg']);
+            $weights[$i+1]['adg']       = round($diff / $days, 3);
+            $weights[$i+1]['kg_gained'] = round($diff, 1);
         }
         jsonSuccess($weights);
 

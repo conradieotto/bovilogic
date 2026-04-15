@@ -27,31 +27,61 @@ switch ($type) {
         $total = DB::val("SELECT COUNT(*) FROM animals WHERE animal_status = 'active'");
 
         // Sales in period
-        $sales = DB::rows(
-            "SELECT s.*, a.ear_tag, a.category, a.breed
-             FROM sales s LEFT JOIN animals a ON a.id = s.animal_id
-             WHERE s.sale_date BETWEEN ? AND ? ORDER BY s.sale_date",
-            [$from, $to]
-        );
+        try {
+            $sales = DB::rows(
+                "SELECT s.*, a.ear_tag, a.category, a.breed
+                 FROM sales s LEFT JOIN animals a ON a.id = s.animal_id
+                 WHERE s.sale_date BETWEEN ? AND ? ORDER BY s.sale_date",
+                [$from, $to]
+            );
+        } catch (Throwable $e) { $sales = []; }
         $salesTotal = array_sum(array_column($sales, 'price'));
 
         // Mortality in period
-        $mortality = DB::rows(
-            "SELECT m.*, a.ear_tag, a.category
-             FROM mortality m LEFT JOIN animals a ON a.id = m.animal_id
-             WHERE m.death_date BETWEEN ? AND ?",
-            [$from, $to]
-        );
+        try {
+            $mortality = DB::rows(
+                "SELECT m.*, a.ear_tag, a.category
+                 FROM mortality m LEFT JOIN animals a ON a.id = m.animal_id
+                 WHERE m.death_date BETWEEN ? AND ?",
+                [$from, $to]
+            );
+        } catch (Throwable $e) { $mortality = []; }
+
+        // Animals marked dead or sold in period
+        try {
+            $deadSold = DB::rows(
+                "SELECT id, ear_tag, category, animal_status, status_date,
+                        COALESCE(status_notes, '') AS status_notes
+                 FROM animals
+                 WHERE animal_status IN ('dead','sold') AND status_date BETWEEN ? AND ?
+                 ORDER BY status_date DESC",
+                [$from, $to]
+            );
+        } catch (Throwable $e) { $deadSold = []; }
 
         // Newborns (calves born in period)
-        $newborns = DB::rows(
-            "SELECT a.ear_tag, a.dob, a.breed, a.sex,
-                    m.ear_tag AS dam_tag
-             FROM animals a
-             LEFT JOIN animals m ON m.id = a.mother_id
-             WHERE a.category = 'calf' AND a.dob BETWEEN ? AND ?",
-            [$from, $to]
-        );
+        try {
+            $newborns = DB::rows(
+                "SELECT a.id, a.ear_tag, a.dob, a.breed, a.sex, a.category,
+                        m.ear_tag AS dam_tag
+                 FROM animals a
+                 LEFT JOIN animals m ON m.id = a.mother_id
+                 WHERE a.category IN ('bull_calf','heifer_calf') AND a.dob BETWEEN ? AND ?
+                 ORDER BY a.dob DESC",
+                [$from, $to]
+            );
+        } catch (Throwable $e) { $newborns = []; }
+
+        // Purchases in period
+        try {
+            $purchases = DB::rows(
+                "SELECT id, date_purchased, price_zar, seller, category, total_purchased
+                 FROM purchases
+                 WHERE date_purchased BETWEEN ? AND ?
+                 ORDER BY date_purchased DESC",
+                [$from, $to]
+            );
+        } catch (Throwable $e) { $purchases = []; }
 
         // Farm summary
         $farmSummary = DB::rows(
@@ -70,6 +100,9 @@ switch ($type) {
             'sales_total'  => (float)$salesTotal,
             'mortality'    => $mortality,
             'newborns'     => $newborns,
+            'dead_sold'    => $deadSold,
+            'newborns'     => $newborns,
+            'purchases'    => $purchases,
         ];
         break;
 

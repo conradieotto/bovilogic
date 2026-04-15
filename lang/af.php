@@ -69,11 +69,11 @@ return [
     'size_ha'          => 'Grootte (ha)',
 
     // Herds
-    'herds'            => 'Kuddes',
-    'herd'             => 'Kudde',
-    'add_herd'         => 'Voeg Kudde By',
-    'edit_herd'        => 'Wysig Kudde',
-    'herd_name'        => 'Kuddenaam',
+    'herds'            => 'Troppe',
+    'herd'             => 'Trop',
+    'add_herd'         => 'Voeg Trop By',
+    'edit_herd'        => 'Wysig Trop',
+    'herd_name'        => 'Tropnaam',
     'breeding_bull'    => 'Teelbul',
     'breeding_start'   => 'Teelbegin',
     'breeding_end'     => 'Teeleinde',
@@ -101,14 +101,13 @@ return [
     'comments'         => 'Kommentaar',
 
     // Categories
-    'cat_breeding_bull'=> 'Teelbul',
-    'cat_cow'          => 'Koei',
-    'cat_calf'         => 'Kalf',
-    'cat_open_heifer'  => 'Oop Vers',
-    'cat_heifer'       => 'Vers',
-    'cat_weaner'       => 'Speen',
-    'cat_steer'        => 'Os (jong)',
-    'cat_ox'           => 'Os',
+    'cat_breeding_bull'      => 'Teelbul',
+    'cat_breeding_cow'       => 'Teelkoei',
+    'cat_c_grade_cow'        => 'C-graad Koei',
+    'cat_bull_calf'          => 'Bulkalf',
+    'cat_heifer_calf'        => 'Verskalf',
+    'cat_weaner'             => 'Speen',
+    'cat_replacement_heifer' => 'Vervangingsvers',
 
     // Status
     'bs_open'          => 'Oop',
@@ -206,8 +205,11 @@ return [
     'export_data'      => 'Voer Data Uit',
     'import_data'      => 'Voer Data In',
 
+    // Pregnancy
+    'pregnancy_test'   => 'Dragtigheidstoets',
+
     // Movement
-    'move_herd'        => 'Skuif Kudde',
+    'move_herd'        => 'Skuif Trop',
     'from_camp'        => 'Van Kamp',
     'to_camp'          => 'Na Kamp',
     'move_date'        => 'Skuifdatum',

@@ -13,7 +13,7 @@ require_once __DIR__ . '/templates/header.php';
 ?>
 
 <header class="page-header">
-  <a href="<?= $farmId ? "/camps.php?farm=$farmId" : '/index.php' ?>" class="btn-icon">
+  <a href="<?= $farmId ? "/camps.php?farm=$farmId" : (($_GET['from'] ?? '') === 'quick' ? '/quick-actions.php' : '/index.php') ?>" class="btn-icon">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
   </a>
   <h1><?= t('herds') ?></h1>
@@ -46,8 +46,12 @@ require_once __DIR__ . '/templates/header.php';
         <div class="form-group"><label class="form-label"><?= t('camp') ?></label>
           <select id="herd-camp" class="form-control"><option value="">– None –</option></select>
         </div>
-        <div class="form-group"><label class="form-label"><?= t('breeding_bull') ?></label>
-          <select id="herd-bull" class="form-control"><option value="">– None –</option></select>
+        <div class="form-group">
+          <label class="form-label"><?= t('breeding_bull') ?></label>
+          <div id="bull-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;min-height:4px"></div>
+          <select id="herd-bull-select" class="form-control">
+            <option value="">– Add Bull –</option>
+          </select>
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label"><?= t('breeding_start') ?></label><input type="date" id="herd-bs" class="form-control"></div>
@@ -67,7 +71,7 @@ require_once __DIR__ . '/templates/header.php';
 <script>
 const isAdmin   = <?= isSuperAdmin() ? 'true' : 'false' ?>;
 const filterFarm = <?= $farmId ?>;
-const COLORS = ['#2E7D32','#1565C0','#E65100','#6A1B9A','#AD1457','#00695C','#F9A825','#4E342E'];
+const COLORS = ['#2E7D32','#1565C0','#E65100','#6A1B9A','#AD1457','#00695C','#F9A825','#4E342E','#FFFFFF','#000000'];
 
 function renderColorPicker(selected) {
   const cp = document.getElementById('color-picker');
@@ -99,10 +103,28 @@ function loadHerds() {
         </div>
         <div class="item-body">
           <div class="item-title">${escHtml(h.name)}</div>
-          <div class="item-sub">${escHtml(h.farm_name||'')} ${h.camp_name ? '· '+escHtml(h.camp_name) : ''} · ${h.animal_count||0} animals</div>
+          <div class="item-sub">${escHtml(h.farm_name||'')} ${h.camp_name ? '· '+escHtml(h.camp_name) : ''} · ${h.animal_count||0} animals${h.bulls&&h.bulls.length ? ' · Bulls: '+h.bulls.map(b=>escHtml(b.ear_tag)).join(', ') : ''}</div>
+          ${(h.breeding_start || h.breeding_end) ? `<div class="item-sub" style="margin-top:2px">
+            ${h.breeding_start ? 'Start: '+h.breeding_start : ''} ${h.breeding_end ? '· End: '+h.breeding_end : ''}
+          </div>` : ''}
+          ${h.pregnancy_rate != null ? `<div class="item-sub" style="margin-top:2px">
+            Pregnancy rate: <strong>${h.pregnancy_rate}%</strong>
+            ${(()=>{
+              const r = h.pregnancy_rate;
+              const label = r >= 86 ? 'Excellent' : r >= 75 ? 'Good' : 'Poor';
+              const bg    = r >= 86 ? '#e8f5e9'   : r >= 75 ? '#fff8e1' : '#ffebee';
+              const color = r >= 86 ? '#2e7d32'   : r >= 75 ? '#f57f17' : '#c62828';
+              return `<span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:${bg};color:${color}">${label}</span>`;
+            })()}
+            ${h.last_pregnancy_test ? '<span style="color:var(--text-muted);font-size:11px"> · '+h.last_pregnancy_test+'</span>' : ''}
+          </div>` : ''}
         </div>
         <div class="item-end">
-          ${isAdmin ? `<button class="btn btn-sm btn-secondary" onclick="editHerd(event,${JSON.stringify(h).replace(/"/g,'&quot;')})">Edit</button>` : ''}
+          ${isAdmin ? `
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-sm btn-secondary" onclick="editHerd(event,${JSON.stringify(h).replace(/"/g,'&quot;')})">Edit</button>
+              <button class="btn btn-sm btn-danger"    onclick="deleteHerd(event,${h.id},${JSON.stringify(h.name).replace(/"/g,'&quot;')})">Delete</button>
+            </div>` : ''}
         </div>
         <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
       </a>
@@ -110,7 +132,7 @@ function loadHerds() {
   });
 }
 
-let farms = [], camps = [], bulls = [];
+let farms = [], camps = [], bulls = [], selectedBullIds = [];
 
 if (isAdmin) {
   Promise.all([
@@ -133,12 +155,14 @@ if (isAdmin) {
     renderColorPicker('#4CAF50');
     document.getElementById('herd-color').value = '#4CAF50';
     document.getElementById('herd-modal-title').textContent = '<?= t('add_herd') ?>';
+    selectedBullIds = []; renderBullChips();
     if (filterFarm) document.getElementById('herd-farm').value = filterFarm;
     openModal('herd-modal');
   });
 
   document.getElementById('herd-save-btn').addEventListener('click', saveHerd);
   document.getElementById('herd-farm').addEventListener('change', updateCamps);
+  document.getElementById('herd-bull-select').addEventListener('change', function() { addBull(this.value); });
 }
 
 function populateFarmSelect() {
@@ -156,9 +180,34 @@ function updateCamps() {
 }
 
 function updateBulls() {
-  const sel = document.getElementById('herd-bull');
-  sel.innerHTML = '<option value="">– None –</option>' +
+  const sel = document.getElementById('herd-bull-select');
+  sel.innerHTML = '<option value="">– Add Bull –</option>' +
     bulls.map(b=>`<option value="${b.id}">${escHtml(b.ear_tag)}</option>`).join('');
+}
+
+function renderBullChips() {
+  const container = document.getElementById('bull-chips');
+  container.innerHTML = selectedBullIds.map(id => {
+    const bull = bulls.find(b => b.id == id);
+    const tag  = bull ? escHtml(bull.ear_tag) : id;
+    return `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:0.8125rem;font-weight:600">
+      ${tag}
+      <button type="button" onclick="removeBull(${id})" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;line-height:1;padding:0 2px">&times;</button>
+    </span>`;
+  }).join('');
+}
+
+function addBull(id) {
+  id = parseInt(id);
+  if (!id || selectedBullIds.includes(id)) return;
+  selectedBullIds.push(id);
+  renderBullChips();
+  document.getElementById('herd-bull-select').value = '';
+}
+
+function removeBull(id) {
+  selectedBullIds = selectedBullIds.filter(b => b !== id);
+  renderBullChips();
 }
 
 function editHerd(e, herd) {
@@ -175,7 +224,10 @@ function editHerd(e, herd) {
   updateCamps();
   setTimeout(() => {
     document.getElementById('herd-camp').value = herd.camp_id || '';
-    document.getElementById('herd-bull').value = herd.breeding_bull_id || '';
+    selectedBullIds = (herd.bulls && herd.bulls.length)
+      ? herd.bulls.map(b => b.id)
+      : (herd.breeding_bull_id ? [parseInt(herd.breeding_bull_id)] : []);
+    renderBullChips();
   }, 50);
   openModal('herd-modal');
 }
@@ -189,7 +241,7 @@ function saveHerd() {
     color:             document.getElementById('herd-color').value,
     farm_id:           document.getElementById('herd-farm').value,
     camp_id:           document.getElementById('herd-camp').value || null,
-    breeding_bull_id:  document.getElementById('herd-bull').value || null,
+    bull_ids:          selectedBullIds,
     breeding_start:    document.getElementById('herd-bs').value || null,
     breeding_end:      document.getElementById('herd-be').value || null,
     notes:             document.getElementById('herd-notes').value.trim(),
@@ -201,6 +253,18 @@ function saveHerd() {
     .then(res => {
       if (res.success) { closeModal('herd-modal'); loadHerds(); }
       else alert(res.message || 'Error saving herd.');
+    })
+    .catch(err => alert('Save failed: ' + err.message));
+}
+
+function deleteHerd(e, id, name) {
+  e.preventDefault();
+  if (!confirm(`Delete herd "${name}"?\n\nAnimals in this herd will not be deleted.`)) return;
+  fetch(`/api/herds.php?id=${id}`, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) { showToast('Herd deleted'); loadHerds(); }
+      else alert(res.message || 'Error deleting herd.');
     });
 }
 

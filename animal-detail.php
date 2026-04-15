@@ -24,6 +24,11 @@ $animal = DB::row(
 );
 if (!$animal) { header('Location: /animals.php'); exit; }
 
+$offspring = DB::rows(
+    'SELECT id, ear_tag FROM animals WHERE mother_id = ? ORDER BY dob ASC',
+    [$id]
+);
+
 $pageTitle = 'animal';
 require_once __DIR__ . '/templates/header.php';
 
@@ -36,14 +41,13 @@ if ($animal['dob']) {
 }
 
 $categoryLabels = [
-    'breeding_bull' => t('cat_breeding_bull'),
-    'cow'           => t('cat_cow'),
-    'calf'          => t('cat_calf'),
-    'open_heifer'   => t('cat_open_heifer'),
-    'heifer'        => t('cat_heifer'),
-    'weaner'        => t('cat_weaner'),
-    'steer'         => t('cat_steer'),
-    'ox'            => t('cat_ox'),
+    'breeding_bull'      => t('cat_breeding_bull'),
+    'breeding_cow'       => t('cat_breeding_cow'),
+    'c_grade_cow'        => t('cat_c_grade_cow'),
+    'bull_calf'          => t('cat_bull_calf'),
+    'heifer_calf'        => t('cat_heifer_calf'),
+    'weaner'             => t('cat_weaner'),
+    'replacement_heifer' => t('cat_replacement_heifer'),
 ];
 $statusClass = ['active' => 'badge-green', 'sold' => 'badge-amber', 'dead' => 'badge-red'];
 ?>
@@ -89,6 +93,39 @@ $statusClass = ['active' => 'badge-green', 'sold' => 'badge-amber', 'dead' => 'b
       <?php endif; ?>
       <?php if ($animal['breeding_status']): ?>
       <div><span class="text-muted text-xs">Breeding Status</span><br><strong><?= htmlspecialchars($animal['breeding_status']) ?></strong></div>
+      <?php endif; ?>
+      <?php if ($animal['breeding_status'] === 'pregnant' && $animal['breeding_date']): ?>
+      <?php $dueDate = date('d M Y', strtotime($animal['breeding_date'] . ' +285 days')); ?>
+      <div><span class="text-muted text-xs">Expected Calving</span><br><strong><?= $dueDate ?></strong></div>
+      <?php endif; ?>
+      <?php if ($animal['category'] === 'breeding_cow' && $animal['last_calving_date']): ?>
+      <div><span class="text-muted text-xs">Last Calving</span><br><strong><?= date('d M Y', strtotime($animal['last_calving_date'])) ?></strong></div>
+      <?php endif; ?>
+      <?php if ($animal['category'] === 'breeding_cow' && $animal['avg_calf_interval']): ?>
+      <?php
+        $avgDays = round($animal['avg_calf_interval']);
+        if ($avgDays <= 365) {
+            $badge = ['label' => 'Excellent', 'bg' => '#e8f5e9', 'color' => '#2e7d32'];
+        } elseif ($avgDays <= 420) {
+            $badge = ['label' => 'Good',      'bg' => '#fff8e1', 'color' => '#f57f17'];
+        } else {
+            $badge = ['label' => 'Poor',      'bg' => '#ffebee', 'color' => '#c62828'];
+        }
+      ?>
+      <div>
+        <span class="text-muted text-xs">Avg Calving Interval</span><br>
+        <strong><?= $avgDays ?> days</strong>
+        <span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:<?= $badge['bg'] ?>;color:<?= $badge['color'] ?>"><?= $badge['label'] ?></span>
+      </div>
+      <?php endif; ?>
+    </div>
+      <?php
+      $totalCalves = DB::val('SELECT COUNT(*) FROM calving WHERE dam_id = ?', [$id]);
+      if ($totalCalves): ?>
+      <div style="grid-column:1/-1">
+        <span class="text-muted text-xs">Calves</span><br>
+        <strong><?= $totalCalves ?> <?= $totalCalves == 1 ? 'calf' : 'calves' ?></strong>
+      </div>
       <?php endif; ?>
     </div>
     <?php if ($animal['comments']): ?>
@@ -143,7 +180,7 @@ $statusClass = ['active' => 'badge-green', 'sold' => 'badge-amber', 'dead' => 'b
 <div class="modal-overlay" id="weight-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">Add Weight</div>
+    <div class="modal-title" id="weight-modal-title">Add Weight</div>
     <div class="modal-body">
       <div class="form-group"><label class="form-label">Weight (kg) <span class="required">*</span></label><input type="number" id="w-kg" class="form-control" step="0.1" min="0"></div>
       <div class="form-group"><label class="form-label">Date <span class="required">*</span></label><input type="date" id="w-date" class="form-control" value="<?= date('Y-m-d') ?>"></div>
@@ -249,19 +286,23 @@ function loadWeights() {
     .then(res => {
       const el = document.getElementById('weights-content');
       if (!res.data?.length) { el.innerHTML = '<p class="text-muted text-sm">No weights recorded.</p>'; return; }
-      let prev = null;
       el.innerHTML = '<div class="list-card">' + res.data.map(w => {
         let gain = '';
-        if (prev && w.weight_kg && prev.weight_kg) {
-          const diff = parseFloat(w.weight_kg) - parseFloat(prev.weight_kg);
-          gain = `<span class="text-xs ${diff >= 0 ? 'text-muted' : 'badge-red'}" style="color:${diff>=0?'var(--green)':'var(--red)'}"> ${diff >= 0 ? '+' : ''}${diff.toFixed(1)}kg</span>`;
+        if (w.adg != null) {
+          const color = w.adg >= 0 ? 'var(--green)' : 'var(--red)';
+          const sign  = w.adg >= 0 ? '+' : '';
+          gain = `<span class="text-xs" style="color:${color}"> ${sign}${w.kg_gained}kg total &nbsp;·&nbsp; ${sign}${w.adg} kg/day</span>`;
         }
-        prev = w;
         return `<div class="list-item">
           <div class="item-body">
             <div class="item-title">${w.weight_kg} kg ${gain}</div>
             <div class="item-sub">${formatDate(w.weigh_date)}${w.notes ? ' · ' + escHtml(w.notes) : ''}</div>
           </div>
+          <?php if (isSuperAdmin()): ?>
+          <button class="btn btn-sm btn-secondary"
+            data-id="${w.id}" data-kg="${w.weight_kg}" data-date="${w.weigh_date}" data-notes="${escHtml(w.notes||'')}"
+            onclick="editWeightFromBtn(this)">Edit</button>
+          <?php endif; ?>
         </div>`;
       }).join('') + '</div>';
     });
@@ -273,22 +314,43 @@ function loadVaccinations() {
     .then(res => {
       const el = document.getElementById('vacc-content');
       if (!res.data?.length) { el.innerHTML = '<p class="text-muted text-sm">No vaccinations recorded.</p>'; return; }
-      const today = new Date();
-      el.innerHTML = '<div class="list-card">' + res.data.map(v => {
-        const due = new Date(v.due_date);
-        const overdue = !v.completed && due < today;
-        return `<div class="list-item">
-          <div class="item-body">
-            <div class="item-title">${escHtml(v.product)}</div>
-            <div class="item-sub">Due: ${formatDate(v.due_date)}${v.dosage ? ' · ' + escHtml(v.dosage) : ''}</div>
-          </div>
-          <div class="item-end">
-            <span class="badge ${v.completed ? 'badge-green' : overdue ? 'badge-red' : 'badge-amber'}">
-              ${v.completed ? 'Done' : overdue ? 'Overdue' : 'Pending'}
-            </span>
-          </div>
-        </div>`;
-      }).join('') + '</div>';
+      const today   = new Date();
+      const pending = res.data.filter(v => !v.completed);
+      const history = res.data.filter(v =>  v.completed);
+
+      let html = '';
+
+      if (pending.length) {
+        html += '<p class="text-xs text-muted" style="margin:0 0 6px">Pending</p><div class="list-card" style="margin-bottom:16px">';
+        html += pending.map(v => {
+          const overdue = new Date(v.due_date) < today;
+          return `<div class="list-item">
+            <div class="item-body">
+              <div class="item-title">${escHtml(v.product)}</div>
+              <div class="item-sub">Due: ${formatDate(v.due_date)}${v.dosage ? ' · ' + escHtml(v.dosage) : ''}</div>
+            </div>
+            <span class="badge ${overdue ? 'badge-red' : 'badge-amber'}">${overdue ? 'Overdue' : 'Pending'}</span>
+          </div>`;
+        }).join('') + '</div>';
+      }
+
+      if (history.length) {
+        html += '<p class="text-xs text-muted" style="margin:0 0 6px">History</p><div class="list-card">';
+        html += history.map(v => `
+          <div class="list-item">
+            <div class="item-body">
+              <div class="item-title">${escHtml(v.product)}</div>
+              <div class="item-sub">
+                Done: ${formatDate(v.completion_date || v.due_date)}
+                ${v.dosage ? ' · ' + escHtml(v.dosage) : ''}
+                ${v.notes  ? ' · ' + escHtml(v.notes)  : ''}
+              </div>
+            </div>
+            <span class="badge badge-green">Done</span>
+          </div>`).join('') + '</div>';
+      }
+
+      el.innerHTML = html || '<p class="text-muted text-sm">No vaccinations recorded.</p>';
     });
 }
 
@@ -332,33 +394,111 @@ function loadCalving() {
     .then(res => {
       const el = document.getElementById('calving-content');
       if (!res.data?.length) { el.innerHTML = '<p class="text-muted text-sm">No calving records.</p>'; return; }
-      el.innerHTML = '<div class="list-card">' + res.data.map(c => `
+      const ordinals = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
+      const total = res.data.length;
+      // data is ASC so index 0 = first calf
+      el.innerHTML = '<div class="list-card" id="calving-list">' + res.data.map((c, i) => {
+        const num = ordinals[i] || (i + 1) + 'th';
+        const sex = c.calf_sex ? (c.calf_sex === 'male' ? '♂ Bull calf' : '♀ Heifer calf') : '';
+        const calfLink = c.calf_id
+          ? `<a href="/animal-detail.php?id=${c.calf_id}" style="font-weight:600;color:var(--green)">${escHtml(c.calf_tag || 'Unknown')}</a>`
+          : escHtml(c.calf_tag || 'Unknown');
+        return `
         <div class="list-item">
+          <div class="item-icon" style="font-size:1.1rem;font-weight:700;color:var(--green);min-width:36px;text-align:center">${num}</div>
           <div class="item-body">
-            <div class="item-title">Calf: ${escHtml(c.calf_tag || 'Unknown')}</div>
-            <div class="item-sub">${formatDate(c.calving_date)}</div>
+            <div class="item-title">${calfLink}</div>
+            <div class="item-sub" id="calving-sub-${c.id}">${formatDate(c.calving_date)}${sex ? ' · ' + sex : ''}</div>
+            <div id="calving-edit-${c.id}" style="display:none;margin-top:6px;display:none">
+              <input type="date" id="calving-date-${c.id}" value="${c.calving_date}"
+                style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem">
+              <button onclick="saveCalvingDate(${c.id},'${c.calving_date}')"
+                style="margin-left:6px;padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer">Save</button>
+              <button onclick="cancelCalvingEdit(${c.id})"
+                style="margin-left:4px;padding:4px 10px;background:#eee;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer">Cancel</button>
+            </div>
           </div>
-        </div>
-      `).join('') + '</div>';
+          <button onclick="toggleCalvingEdit(${c.id})" title="Edit date"
+            style="background:none;border:none;cursor:pointer;padding:4px;opacity:0.5">
+            <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          </button>
+        </div>`;
+      }).join('') + '</div>';
+    });
+}
+
+function toggleCalvingEdit(id) {
+  const box = document.getElementById('calving-edit-' + id);
+  box.style.display = box.style.display === 'none' ? 'block' : 'none';
+}
+
+function cancelCalvingEdit(id) {
+  document.getElementById('calving-edit-' + id).style.display = 'none';
+}
+
+function saveCalvingDate(id, original) {
+  const date = document.getElementById('calving-date-' + id).value;
+  if (!date) { alert('Please pick a date.'); return; }
+  fetch(`/api/calving.php?id=${id}`, {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ calving_date: date })
+  })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) {
+        document.getElementById('calving-edit-' + id).style.display = 'none';
+        loadCalving(); // refresh the list
+      } else {
+        alert(res.message || 'Error saving date.');
+      }
     });
 }
 
 function openAddModal(type) {
+  if (type === 'weight') {
+    document.getElementById('weight-modal').dataset.editId = '';
+    document.getElementById('weight-modal-title').textContent = 'Add Weight';
+    document.getElementById('w-kg').value = '';
+    document.getElementById('w-date').value = '<?= date('Y-m-d') ?>';
+    document.getElementById('w-notes').value = '';
+  }
   openModal(type + '-modal');
 }
 
+function editWeightFromBtn(btn) {
+  editWeight(parseInt(btn.dataset.id), parseFloat(btn.dataset.kg), btn.dataset.date, btn.dataset.notes);
+}
+
+function editWeight(id, kg, date, notes) {
+  document.getElementById('w-kg').value    = kg;
+  document.getElementById('w-date').value  = date;
+  document.getElementById('w-notes').value = notes || '';
+  // Store edit id on modal and switch save button behaviour
+  document.getElementById('weight-modal').dataset.editId = id;
+  document.getElementById('weight-modal-title').textContent = 'Edit Weight';
+  openModal('weight-modal');
+}
+
 function saveWeight() {
-  const kg   = document.getElementById('w-kg').value;
-  const date = document.getElementById('w-date').value;
+  const kg     = document.getElementById('w-kg').value;
+  const date   = document.getElementById('w-date').value;
+  const editId = document.getElementById('weight-modal').dataset.editId;
   if (!kg || !date) { alert('Weight and date are required.'); return; }
-  fetch('/api/weights.php', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ animal_id: ANIMAL_ID, weight_kg: parseFloat(kg), weigh_date: date, notes: document.getElementById('w-notes').value })
-  }).then(r => r.json()).then(res => {
-    if (res.success) { closeModal('weight-modal'); loadWeights(); }
-    else alert(res.message);
-  });
+  const method = editId ? 'PUT' : 'POST';
+  const url    = editId ? `/api/weights.php?id=${editId}` : '/api/weights.php';
+  const body   = editId
+    ? { weight_kg: parseFloat(kg), weigh_date: date, notes: document.getElementById('w-notes').value }
+    : { animal_id: ANIMAL_ID, weight_kg: parseFloat(kg), weigh_date: date, notes: document.getElementById('w-notes').value };
+  fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) })
+    .then(r => r.json()).then(res => {
+      if (res.success) {
+        document.getElementById('weight-modal').dataset.editId = '';
+        document.getElementById('weight-modal-title').textContent = 'Add Weight';
+        closeModal('weight-modal');
+        loadWeights();
+      } else alert(res.message);
+    });
 }
 
 function saveVaccination() {

@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/activity_logger.php';
 
+ob_start();
 header('Content-Type: application/json');
 $user   = apiRequireLogin();
 $method = $_SERVER['REQUEST_METHOD'];

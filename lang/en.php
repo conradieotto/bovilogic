@@ -101,14 +101,13 @@ return [
     'comments'         => 'Comments',
 
     // Categories
-    'cat_breeding_bull'=> 'Breeding Bull',
-    'cat_cow'          => 'Cow',
-    'cat_calf'         => 'Calf',
-    'cat_open_heifer'  => 'Open Heifer',
-    'cat_heifer'       => 'Heifer',
-    'cat_weaner'       => 'Weaner',
-    'cat_steer'        => 'Steer',
-    'cat_ox'           => 'Ox',
+    'cat_breeding_bull'      => 'Breeding Bull',
+    'cat_breeding_cow'       => 'Breeding Cow',
+    'cat_c_grade_cow'        => 'C-grade Cow',
+    'cat_bull_calf'          => 'Bull Calf',
+    'cat_heifer_calf'        => 'Heifer Calf',
+    'cat_weaner'             => 'Weaner',
+    'cat_replacement_heifer' => 'Replacement Heifer',
 
     // Breeding status
     'bs_open'          => 'Open',
@@ -210,6 +209,7 @@ return [
     'import_data'      => 'Import Data',
 
     // Movement
+    'pregnancy_test'   => 'Pregnancy Test',
     'move_herd'        => 'Move Herd',
     'from_camp'        => 'From Camp',
     'to_camp'          => 'To Camp',

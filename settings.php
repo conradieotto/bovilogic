@@ -48,6 +48,19 @@ require_once __DIR__ . '/templates/header.php';
     </div>
   </div>
 
+  <?php if (isSuperAdmin()): ?>
+  <div class="card mt-16" style="border:1px solid #ffcdd2">
+    <div class="card-header" style="background:#fff5f5"><h3 style="color:#c62828">Danger Zone</h3></div>
+    <div class="card-body">
+      <p class="text-sm" style="margin-bottom:12px">Permanently delete all animals marked as <strong>Sold</strong> or <strong>Dead</strong>. Their calving records on the mother will be kept. This cannot be undone.</p>
+      <div id="purge-result"></div>
+      <button class="btn btn-full" style="background:#c62828;color:#fff" onclick="purgeDeadSold()">
+        Delete All Sold &amp; Dead Animals
+      </button>
+    </div>
+  </div>
+  <?php endif; ?>
+
   <div class="card mt-16">
     <div class="card-header"><h3>PWA / Install</h3></div>
     <div class="card-body">
@@ -74,6 +87,26 @@ document.getElementById('install-btn')?.addEventListener('click', () => {
     deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
   }
 });
+
+async function purgeDeadSold() {
+  const res = await fetch('/api/animals.php?q=_count_dead_sold').then(r=>r.json()).catch(()=>null);
+  const count = res?.data?.length ?? '?';
+  if (!confirm(`This will permanently delete all sold and dead animals. Are you sure?`)) return;
+  if (!confirm(`Second confirmation: this cannot be undone. Continue?`)) return;
+
+  const result = await fetch('/api/purge-animals.php', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ statuses: ['sold','dead'] })
+  }).then(r=>r.json());
+
+  const el = document.getElementById('purge-result');
+  if (result.success) {
+    el.innerHTML = `<div class="alert-bar success mb-12">${result.message}</div>`;
+  } else {
+    el.innerHTML = `<div class="alert-bar error mb-12">${result.message || 'Error.'}</div>`;
+  }
+}
 
 async function changePassword() {
   const current = document.getElementById('pw-current').value;

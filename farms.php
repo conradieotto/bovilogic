@@ -12,7 +12,7 @@ require_once __DIR__ . '/templates/header.php';
 ?>
 
 <header class="page-header">
-  <a href="/index.php" class="btn-icon" aria-label="Back">
+  <a href="<?= ($_GET['from'] ?? '') === 'quick' ? '/quick-actions.php' : '/index.php' ?>" class="btn-icon" aria-label="Back">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
   </a>
   <h1><?= t('farms') ?></h1>
@@ -43,6 +43,10 @@ require_once __DIR__ . '/templates/header.php';
           <input type="text" id="farm-location" name="location" class="form-control">
         </div>
         <div class="form-group">
+          <label class="form-label" for="farm-size">Size (ha)</label>
+          <input type="number" id="farm-size" name="size_ha" class="form-control" step="0.1" min="0" placeholder="e.g. 500">
+        </div>
+        <div class="form-group">
           <label class="form-label" for="farm-notes"><?= t('notes') ?></label>
           <textarea id="farm-notes" name="notes" class="form-control"></textarea>
         </div>
@@ -58,8 +62,10 @@ require_once __DIR__ . '/templates/header.php';
 
 <script>
 const isAdmin = <?= isSuperAdmin() ? 'true' : 'false' ?>;
+let farmsCache = [];
 
 function renderFarms(farms) {
+  farmsCache = farms;
   const el = document.getElementById('farms-list');
   if (!farms.length) {
     el.innerHTML = `<div class="empty-state">
@@ -69,19 +75,27 @@ function renderFarms(farms) {
     </div>`;
     return;
   }
-  el.innerHTML = '<div class="list-card">' + farms.map(f => `
+  el.innerHTML = '<div class="list-card">' + farms.map(f => {
+    const adminBtns = isAdmin
+      ? `<div style="display:flex;gap:6px">
+           <button class="btn btn-sm btn-secondary" onclick="editFarm(event,${f.id})">Edit</button>
+           <button class="btn btn-sm btn-danger" onclick="deleteFarm(event,${f.id})">Delete</button>
+         </div>`
+      : '';
+    const ha  = f.size_ha ? (parseFloat(f.size_ha) + ' ha') : '– ha';
+    const sub = [f.location, ha, (f.animal_count ?? 0) + ' animals']
+      .filter(Boolean).join(' · ');
+    return `
     <a href="/camps.php?farm=${f.id}" class="list-item">
       <div class="item-icon"><svg viewBox="0 0 24 24"><path d="M19 9.3V4h-3v2.6L12 3 2 12h3v8h5v-5h4v5h5v-8h3l-3-2.7z"/></svg></div>
       <div class="item-body">
         <div class="item-title">${escHtml(f.name)}</div>
-        <div class="item-sub">${escHtml(f.location || '')} &middot; ${f.animal_count ?? 0} animals</div>
+        <div class="item-sub">${sub}</div>
       </div>
-      <div class="item-end">
-        ${isAdmin ? `<button class="btn btn-sm btn-secondary" onclick="editFarm(event,${JSON.stringify(f)})">Edit</button>` : ''}
-      </div>
+      <div class="item-end">${adminBtns}</div>
       <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-    </a>
-  `).join('') + '</div>';
+    </a>`;
+  }).join('') + '</div>';
 }
 
 function loadFarms() {
@@ -98,6 +112,7 @@ if (isAdmin) {
     document.getElementById('farm-id').value = '';
     document.getElementById('farm-name').value = '';
     document.getElementById('farm-location').value = '';
+    document.getElementById('farm-size').value = '';
     document.getElementById('farm-notes').value = '';
     document.getElementById('farm-modal-title').textContent = '<?= t('add_farm') ?>';
     openModal('farm-modal');
@@ -106,11 +121,15 @@ if (isAdmin) {
   document.getElementById('farm-save-btn').addEventListener('click', saveFarm);
 }
 
-function editFarm(e, farm) {
+function editFarm(e, id) {
   e.preventDefault();
+  e.stopPropagation();
+  const farm = farmsCache.find(f => f.id == id);
+  if (!farm) return;
   document.getElementById('farm-id').value = farm.id;
   document.getElementById('farm-name').value = farm.name;
   document.getElementById('farm-location').value = farm.location || '';
+  document.getElementById('farm-size').value = farm.size_ha || '';
   document.getElementById('farm-notes').value = farm.notes || '';
   document.getElementById('farm-modal-title').textContent = '<?= t('edit_farm') ?>';
   openModal('farm-modal');
@@ -123,15 +142,33 @@ function saveFarm() {
   const body  = {
     name,
     location: document.getElementById('farm-location').value.trim(),
+    size_ha:  document.getElementById('farm-size').value || null,
     notes:    document.getElementById('farm-notes').value.trim(),
   };
   const method = id ? 'PUT' : 'POST';
   const url    = id ? `/api/farms.php?id=${id}` : '/api/farms.php';
   fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) })
-    .then(r => r.json())
-    .then(res => {
+    .then(r => r.text())
+    .then(text => {
+      let res;
+      try { res = JSON.parse(text); } catch(e) { alert('Server error: ' + text.substring(0,200)); return; }
       if (res.success) { closeModal('farm-modal'); loadFarms(); }
       else alert(res.message || 'Error saving farm.');
+    })
+    .catch(e => alert('Network error: ' + e.message));
+}
+
+function deleteFarm(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  const farm = farmsCache.find(f => f.id == id);
+  const name = farm ? farm.name : 'this farm';
+  if (!confirm('Delete farm "' + name + '"?\n\nThis will not delete animals, but the farm will be removed.')) return;
+  fetch('/api/farms.php?id=' + id, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) { showToast('Farm deleted'); loadFarms(); }
+      else alert(res.message || 'Error deleting farm.');
     });
 }
 

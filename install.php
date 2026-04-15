@@ -49,13 +49,31 @@ if ($step === 'install') {
 
             // Run schema
             $schema = file_get_contents(__DIR__ . '/db/schema.sql');
-            // Split by semicolons and execute each statement
+            // Strip -- comment lines and split on semicolons
+            $lines = explode("\n", $schema);
+            $cleaned = [];
+            foreach ($lines as $line) {
+                $trimmed = ltrim($line);
+                if (substr($trimmed, 0, 2) === '--') continue;
+                $cleaned[] = $line;
+            }
+            $schema = implode("\n", $cleaned);
             $statements = array_filter(array_map('trim', explode(';', $schema)));
+            $schemaOk = true;
             foreach ($statements as $sql) {
-                if ($sql && !preg_match('/^--/', $sql)) {
-                    try { $pdo->exec($sql); } catch (PDOException $e) { /* ignore alter errors on fresh install */ }
+                if (!$sql) continue;
+                try {
+                    $pdo->exec($sql);
+                } catch (PDOException $e) {
+                    $code = $e->getCode();
+                    // Suppress expected errors: duplicate key, FK already exists
+                    if (!in_array($code, ['42S21', '23000', 'HY000'])) {
+                        $errors[] = 'Schema error: ' . $e->getMessage();
+                        $schemaOk = false;
+                    }
                 }
             }
+            if (!$schemaOk) throw new Exception('Schema failed — see errors above.');
             $success[] = "Database tables created.";
 
             // Create admin user

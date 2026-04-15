@@ -4,6 +4,7 @@
  */
 
 function jsonSuccess(mixed $data = null, string $message = 'OK', int $code = 200): never {
+    if (ob_get_level()) ob_end_clean();
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success' => true, 'message' => $message, 'data' => $data], JSON_UNESCAPED_UNICODE);
@@ -11,6 +12,7 @@ function jsonSuccess(mixed $data = null, string $message = 'OK', int $code = 200
 }
 
 function jsonError(string $message = 'Error', int $code = 400, mixed $errors = null): never {
+    if (ob_get_level()) ob_end_clean();
     http_response_code($code);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success' => false, 'message' => $message, 'errors' => $errors], JSON_UNESCAPED_UNICODE);

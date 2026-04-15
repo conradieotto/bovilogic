@@ -11,7 +11,7 @@ $offset = (int)($_GET['offset'] ?? 0);
 $entity = trim($_GET['entity_type'] ?? '');
 $userId = (int)($_GET['user_id'] ?? 0);
 
-$where = ['1=1']; $params = [];
+$where = ['l.created_at >= DATE_FORMAT(NOW(), \'%Y-%m-01\')']; $params = [];
 if ($entity) { $where[] = 'l.entity_type = ?'; $params[] = $entity; }
 if ($userId) { $where[] = 'l.user_id = ?';     $params[] = $userId; }
 

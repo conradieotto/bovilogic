@@ -11,16 +11,16 @@ define('BL_DEBUG', BL_ENV === 'development');
 
 // ─── Database ─────────────────────────────────────────────────────────────────
 // LOCAL (Laragon defaults) — change these for cPanel
-define('DB_HOST',    getenv('DB_HOST') ?: 'localhost');
-define('DB_NAME',    getenv('DB_NAME') ?: 'bovilogic');
-define('DB_USER',    getenv('DB_USER') ?: 'root');
-define('DB_PASS',    getenv('DB_PASS') ?: '');           // Laragon MySQL has no password by default
+define('DB_HOST',    'localhost');
+define('DB_NAME',    'bovilogic');
+define('DB_USER',    'root');
+define('DB_PASS',    '');           // Laragon MySQL has no password by default
 define('DB_CHARSET', 'utf8mb4');
 
 // ─── Application ─────────────────────────────────────────────────────────────
 define('APP_NAME',    'BoviLogic');
-define('APP_URL',     getenv('APP_URL') ?: 'http://localhost/bovilogic');
-define('APP_VERSION', '1.0.0');
+define('APP_URL',     getenv('APP_URL') ?: 'http://bovilogic.test');
+define('APP_VERSION', '1.2.1');
 define('APP_ROOT',    dirname(__DIR__));
 
 // ─── Session ─────────────────────────────────────────────────────────────────
@@ -37,4 +37,10 @@ if (BL_DEBUG) {
 } else {
     ini_set('display_errors', 0);
     error_reporting(0);
+}
+
+// ─── Local overrides (production credentials — never committed to git) ────────
+$localConfig = __DIR__ . '/config.local.php';
+if (file_exists($localConfig)) {
+    require $localConfig;
 }

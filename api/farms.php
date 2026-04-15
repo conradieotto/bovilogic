@@ -4,6 +4,7 @@ require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/response.php';
 require_once __DIR__ . '/../lib/activity_logger.php';
 
+ob_start();
 header('Content-Type: application/json');
 $user   = apiRequireLogin();
 $method = $_SERVER['REQUEST_METHOD'];
@@ -30,8 +31,8 @@ switch ($method) {
         $name = trim($body['name'] ?? '');
         if (!$name) jsonError('Farm name is required.');
         $fid = DB::insert(
-            'INSERT INTO farms (uuid, name, location, notes, created_by) VALUES (?,?,?,?,?)',
-            [DB::uuid(), $name, $body['location'] ?? null, $body['notes'] ?? null, $user['id']]
+            'INSERT INTO farms (uuid, name, location, size_ha, notes, created_by) VALUES (?,?,?,?,?,?)',
+            [DB::uuid(), $name, $body['location'] ?? null, $body['size_ha'] ?? null, $body['notes'] ?? null, $user['id']]
         );
         logActivity('farm', $fid, 'create', "Farm created: $name");
         jsonSuccess(['id' => $fid], 'Farm created', 201);
@@ -42,8 +43,8 @@ switch ($method) {
         $body = getJsonBody();
         $name = trim($body['name'] ?? '');
         if (!$name) jsonError('Farm name is required.');
-        DB::exec('UPDATE farms SET name=?, location=?, notes=? WHERE id=?',
-            [$name, $body['location'] ?? null, $body['notes'] ?? null, $id]);
+        DB::exec('UPDATE farms SET name=?, location=?, size_ha=?, notes=? WHERE id=?',
+            [$name, $body['location'] ?? null, $body['size_ha'] ?? null, $body['notes'] ?? null, $id]);
         logActivity('farm', $id, 'update', "Farm updated: $name");
         jsonSuccess(['id' => $id]);
 

@@ -12,6 +12,10 @@ uploads/*
 backups/
 *.sql.gz
 *.sql.bz2
+*.sql
+
+# Upload artifacts (zips used for cPanel manual upload)
+*.zip
 
 # macOS
 .DS_Store

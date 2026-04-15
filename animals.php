@@ -9,14 +9,29 @@ loadLanguage($user['language']);
 
 $pageTitle = 'nav_animals';
 $searchQ   = htmlspecialchars($_GET['q'] ?? '');
+$farmId    = (int)($_GET['farm_id'] ?? 0);
+$herdId    = (int)($_GET['herd_id'] ?? 0);
+$farmName  = '';
+$herdName  = '';
+if ($farmId || $herdId) {
+    require_once __DIR__ . '/lib/db.php';
+    if ($farmId) {
+        $farmRow  = DB::row('SELECT name FROM farms WHERE id = ?', [$farmId]);
+        $farmName = $farmRow['name'] ?? '';
+    }
+    if ($herdId) {
+        $herdRow  = DB::row('SELECT name FROM herds WHERE id = ?', [$herdId]);
+        $herdName = $herdRow['name'] ?? '';
+    }
+}
 require_once __DIR__ . '/templates/header.php';
 ?>
 
 <header class="page-header">
-  <a href="/index.php" class="btn-icon" aria-label="Back">
+  <a href="<?= $herdId ? '/herds.php' : ($farmId ? "/camps.php?farm=$farmId" : (($_GET['from'] ?? '') === 'quick' ? '/quick-actions.php' : '/index.php')) ?>" class="btn-icon" aria-label="Back">
     <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
   </a>
-  <h1><?= t('animals') ?></h1>
+  <h1><?= $herdName ? htmlspecialchars($herdName) : ($farmName ? htmlspecialchars($farmName) . ' – ' . t('animals') : t('animals')) ?></h1>
   <?php if (isSuperAdmin()): ?>
   <a href="/animal-form.php" class="btn-icon" aria-label="Add animal">
     <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
@@ -42,13 +57,12 @@ require_once __DIR__ . '/templates/header.php';
 <div class="filter-row" id="cat-filters">
   <button class="filter-chip active" data-cat="">All Categories</button>
   <button class="filter-chip" data-cat="breeding_bull"><?= t('cat_breeding_bull') ?></button>
-  <button class="filter-chip" data-cat="cow"><?= t('cat_cow') ?></button>
-  <button class="filter-chip" data-cat="calf"><?= t('cat_calf') ?></button>
-  <button class="filter-chip" data-cat="heifer"><?= t('cat_heifer') ?></button>
-  <button class="filter-chip" data-cat="open_heifer"><?= t('cat_open_heifer') ?></button>
+  <button class="filter-chip" data-cat="breeding_cow"><?= t('cat_breeding_cow') ?></button>
+  <button class="filter-chip" data-cat="c_grade_cow"><?= t('cat_c_grade_cow') ?></button>
+  <button class="filter-chip" data-cat="bull_calf"><?= t('cat_bull_calf') ?></button>
+  <button class="filter-chip" data-cat="heifer_calf"><?= t('cat_heifer_calf') ?></button>
   <button class="filter-chip" data-cat="weaner"><?= t('cat_weaner') ?></button>
-  <button class="filter-chip" data-cat="steer"><?= t('cat_steer') ?></button>
-  <button class="filter-chip" data-cat="ox"><?= t('cat_ox') ?></button>
+  <button class="filter-chip" data-cat="replacement_heifer"><?= t('cat_replacement_heifer') ?></button>
 </div>
 
 <div id="animals-list"><div class="page-loader"><div class="spinner"></div></div></div>
@@ -60,19 +74,20 @@ require_once __DIR__ . '/templates/header.php';
 <?php endif; ?>
 
 <script>
+const FARM_ID    = <?= $farmId ?>;
+const HERD_ID    = <?= $herdId ?>;
 let activeStatus = '';
 let activeCat    = '';
 let searchTimer  = null;
 
 const categoryLabels = {
-  breeding_bull: '<?= t('cat_breeding_bull') ?>',
-  cow:           '<?= t('cat_cow') ?>',
-  calf:          '<?= t('cat_calf') ?>',
-  open_heifer:   '<?= t('cat_open_heifer') ?>',
-  heifer:        '<?= t('cat_heifer') ?>',
-  weaner:        '<?= t('cat_weaner') ?>',
-  steer:         '<?= t('cat_steer') ?>',
-  ox:            '<?= t('cat_ox') ?>',
+  breeding_bull:      '<?= t('cat_breeding_bull') ?>',
+  breeding_cow:       '<?= t('cat_breeding_cow') ?>',
+  c_grade_cow:        '<?= t('cat_c_grade_cow') ?>',
+  bull_calf:          '<?= t('cat_bull_calf') ?>',
+  heifer_calf:        '<?= t('cat_heifer_calf') ?>',
+  weaner:             '<?= t('cat_weaner') ?>',
+  replacement_heifer: '<?= t('cat_replacement_heifer') ?>',
 };
 
 const statusBadge = {
@@ -84,6 +99,8 @@ const statusBadge = {
 function loadAnimals() {
   const q = document.getElementById('animal-search').value.trim();
   let url = `/api/animals.php?`;
+  if (FARM_ID)      url += `farm_id=${FARM_ID}&`;
+  if (HERD_ID)      url += `herd_id=${HERD_ID}&`;
   if (q)            url += `q=${encodeURIComponent(q)}&`;
   if (activeStatus) url += `status=${activeStatus}&`;
   if (activeCat)    url += `category=${activeCat}&`;
@@ -109,19 +126,26 @@ function renderAnimals(animals) {
     </div>`;
     return;
   }
+  const admin = <?= isSuperAdmin() ? 'true' : 'false' ?>;
   el.innerHTML = '<div class="list-card">' + animals.map(a => `
-    <a href="/animal-detail.php?id=${a.id}" class="list-item">
-      <div class="item-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
-      <div class="item-body">
-        <div class="item-title">${escHtml(a.ear_tag)}</div>
-        <div class="item-sub">${escHtml(categoryLabels[a.category] || a.category)} &middot; ${escHtml(a.breed || '')} &middot; ${escHtml(a.herd_name || '')}</div>
-      </div>
-      <div class="item-end">
-        <span class="badge ${statusBadge[a.animal_status] || 'badge-grey'}">${escHtml(a.animal_status)}</span>
-        ${a.last_weight_kg ? `<span class="text-xs text-muted">${a.last_weight_kg}kg</span>` : ''}
-      </div>
-      <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-    </a>
+    <div class="list-item" style="cursor:default">
+      <a href="/animal-detail.php?id=${a.id}" style="display:flex;align-items:center;gap:12px;flex:1;text-decoration:none;color:inherit;min-width:0">
+        <div class="item-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg></div>
+        <div class="item-body">
+          <div class="item-title">${escHtml(a.ear_tag)}</div>
+          <div class="item-sub">${escHtml(categoryLabels[a.category] || a.category)} &middot; ${escHtml(a.breed || '')} &middot; ${escHtml(a.herd_name || '')}</div>
+        </div>
+        <div class="item-end">
+          <span class="badge ${statusBadge[a.animal_status] || 'badge-grey'}">${escHtml(a.animal_status)}</span>
+          ${a.last_weight_kg ? `<span class="text-xs text-muted">${a.last_weight_kg}kg</span>` : ''}
+        </div>
+      </a>
+      ${admin ? `
+      <div style="display:flex;gap:6px;margin-left:8px;flex-shrink:0">
+        <a href="/animal-form.php?id=${a.id}" class="btn btn-sm btn-secondary">Edit</a>
+        <button class="btn btn-sm btn-danger" onclick="deleteAnimal(${a.id},'${escHtml(a.ear_tag)}')">Delete</button>
+      </div>` : ''}
+    </div>
   `).join('') + '</div>';
 }
 
@@ -148,6 +172,16 @@ document.getElementById('animal-search').addEventListener('input', () => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(loadAnimals, 300);
 });
+
+function deleteAnimal(id, tag) {
+  if (!confirm(`Delete animal "${tag}"?\n\nThis will permanently remove the animal and all its records.`)) return;
+  fetch(`/api/animals.php?id=${id}`, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) { showToast('Animal deleted'); loadAnimals(); }
+      else alert(res.message || 'Error deleting animal.');
+    });
+}
 
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
 
