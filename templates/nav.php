@@ -6,58 +6,58 @@ $userRole    = $_SESSION['user_role'] ?? 'viewer';
 
   <div class="nav-section-label">Main</div>
 
-  <a href="/index.php" class="nav-item <?= $currentPage === 'index' ? 'active' : '' ?>">
-    <i class="fa-solid fa-gauge-high"></i> <?= t('nav_dashboard') ?>
+  <a href="/index.php" class="nav-item <?= $currentPage === 'index' ? 'active' : '' ?>" data-label="<?= t('nav_dashboard') ?>">
+    <i class="fa-solid fa-gauge-high"></i> <span><?= t('nav_dashboard') ?></span>
   </a>
-  <a href="/farms.php" class="nav-item <?= $currentPage === 'farms' ? 'active' : '' ?>">
-    <i class="fa-solid fa-tractor"></i> <?= t('nav_farms') ?>
+  <a href="/farms.php" class="nav-item <?= $currentPage === 'farms' ? 'active' : '' ?>" data-label="<?= t('nav_farms') ?>">
+    <i class="fa-solid fa-tractor"></i> <span><?= t('nav_farms') ?></span>
   </a>
-  <a href="/camps.php" class="nav-item <?= $currentPage === 'camps' ? 'active' : '' ?>">
-    <i class="fa-solid fa-map-location-dot"></i> <?= t('nav_camps') ?>
+  <a href="/camps.php" class="nav-item <?= $currentPage === 'camps' ? 'active' : '' ?>" data-label="<?= t('nav_camps') ?>">
+    <i class="fa-solid fa-map-location-dot"></i> <span><?= t('nav_camps') ?></span>
   </a>
-  <a href="/herds.php" class="nav-item <?= $currentPage === 'herds' ? 'active' : '' ?>">
-    <i class="fa-solid fa-people-group"></i> <?= t('nav_herds') ?>
+  <a href="/herds.php" class="nav-item <?= $currentPage === 'herds' ? 'active' : '' ?>" data-label="<?= t('nav_herds') ?>">
+    <i class="fa-solid fa-people-group"></i> <span><?= t('nav_herds') ?></span>
   </a>
-  <a href="/animals.php" class="nav-item <?= $currentPage === 'animals' ? 'active' : '' ?>">
-    <i class="fa-solid fa-cow"></i> <?= t('nav_animals') ?>
+  <a href="/animals.php" class="nav-item <?= $currentPage === 'animals' ? 'active' : '' ?>" data-label="<?= t('nav_animals') ?>">
+    <i class="fa-solid fa-cow"></i> <span><?= t('nav_animals') ?></span>
   </a>
-  <a href="/reports.php" class="nav-item <?= $currentPage === 'reports' ? 'active' : '' ?>">
-    <i class="fa-solid fa-chart-bar"></i> <?= t('nav_reports') ?>
+  <a href="/reports.php" class="nav-item <?= $currentPage === 'reports' ? 'active' : '' ?>" data-label="<?= t('nav_reports') ?>">
+    <i class="fa-solid fa-chart-bar"></i> <span><?= t('nav_reports') ?></span>
   </a>
 
   <div class="nav-section-label">Manage</div>
 
-  <a href="/summary.php" class="nav-item <?= $currentPage === 'summary' ? 'active' : '' ?>">
-    <i class="fa-solid fa-calendar-days"></i> <?= t('nav_summary') ?>
+  <a href="/summary.php" class="nav-item <?= $currentPage === 'summary' ? 'active' : '' ?>" data-label="<?= t('nav_summary') ?>">
+    <i class="fa-solid fa-calendar-days"></i> <span><?= t('nav_summary') ?></span>
   </a>
-  <a href="/alerts.php" class="nav-item <?= $currentPage === 'alerts' ? 'active' : '' ?>">
-    <i class="fa-solid fa-bell"></i> <?= t('nav_alerts') ?>
+  <a href="/alerts.php" class="nav-item <?= $currentPage === 'alerts' ? 'active' : '' ?>" data-label="<?= t('nav_alerts') ?>">
+    <i class="fa-solid fa-bell"></i> <span><?= t('nav_alerts') ?></span>
   </a>
-  <a href="/quick-actions.php" class="nav-item <?= $currentPage === 'quick-actions' ? 'active' : '' ?>">
-    <i class="fa-solid fa-bolt"></i> <?= t('nav_quick_actions') ?>
+  <a href="/quick-actions.php" class="nav-item <?= $currentPage === 'quick-actions' ? 'active' : '' ?>" data-label="<?= t('nav_quick_actions') ?>">
+    <i class="fa-solid fa-bolt"></i> <span><?= t('nav_quick_actions') ?></span>
   </a>
 
   <?php if (in_array($userRole, ['admin', 'super_admin'])): ?>
   <div class="nav-section-label">Admin</div>
 
-  <a href="/users.php" class="nav-item <?= $currentPage === 'users' ? 'active' : '' ?>">
-    <i class="fa-solid fa-users"></i> <?= t('nav_users') ?>
+  <a href="/users.php" class="nav-item <?= $currentPage === 'users' ? 'active' : '' ?>" data-label="<?= t('nav_users') ?>">
+    <i class="fa-solid fa-users"></i> <span><?= t('nav_users') ?></span>
   </a>
-  <a href="/activity.php" class="nav-item <?= $currentPage === 'activity' ? 'active' : '' ?>">
-    <i class="fa-solid fa-clock-rotate-left"></i> <?= t('nav_activity') ?>
+  <a href="/activity.php" class="nav-item <?= $currentPage === 'activity' ? 'active' : '' ?>" data-label="<?= t('nav_activity') ?>">
+    <i class="fa-solid fa-clock-rotate-left"></i> <span><?= t('nav_activity') ?></span>
   </a>
-  <a href="/settings.php" class="nav-item <?= $currentPage === 'settings' ? 'active' : '' ?>">
-    <i class="fa-solid fa-gear"></i> <?= t('nav_settings') ?>
+  <a href="/settings.php" class="nav-item <?= $currentPage === 'settings' ? 'active' : '' ?>" data-label="<?= t('nav_settings') ?>">
+    <i class="fa-solid fa-gear"></i> <span><?= t('nav_settings') ?></span>
   </a>
   <?php endif; ?>
 
 </nav>
 
 <div class="sidebar-footer">
-  <a href="/settings.php" class="nav-item <?= $currentPage === 'settings' ? 'active' : '' ?>">
-    <i class="fa-solid fa-circle-user"></i> <?= htmlspecialchars($_SESSION['user_name'] ?? t('nav_profile')) ?>
+  <a href="/settings.php" class="nav-item <?= $currentPage === 'settings' ? 'active' : '' ?>" data-label="<?= htmlspecialchars($_SESSION['user_name'] ?? '') ?>">
+    <i class="fa-solid fa-circle-user"></i> <span><?= htmlspecialchars($_SESSION['user_name'] ?? t('nav_profile')) ?></span>
   </a>
-  <a href="/logout.php" class="nav-item">
-    <i class="fa-solid fa-right-from-bracket"></i> <?= t('nav_logout') ?>
+  <a href="/logout.php" class="nav-item" data-label="<?= t('nav_logout') ?>">
+    <i class="fa-solid fa-right-from-bracket"></i> <span><?= t('nav_logout') ?></span>
   </a>
 </div>

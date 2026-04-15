@@ -59,10 +59,11 @@
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'SF Mono', 'Courier New', monospace;
 
-  --topbar-height: 60px;
-  --safe-bottom:   env(safe-area-inset-bottom, 0px);
-  --safe-top:      env(safe-area-inset-top, 0px);
-  --nav-height:    60px;
+  --topbar-height:      60px;
+  --sidebar-collapsed:  60px;
+  --safe-bottom:        env(safe-area-inset-bottom, 0px);
+  --safe-top:           env(safe-area-inset-top, 0px);
+  --nav-height:         60px;
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
@@ -174,6 +175,61 @@ p  { line-height: 1.6; }
   border-top: 1px solid rgba(255,255,255,0.06);
   padding: 12px 0;
 }
+
+/* ─── Sidebar Collapse Toggle ────────────────────────────────────────────── */
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  transition: background 0.12s, color 0.12s;
+  display: flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px;
+}
+.sidebar-toggle-btn:hover { background: var(--sidebar-hover); color: #fff; }
+
+/* Collapsed state */
+.app-shell.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed); }
+.app-shell.sidebar-collapsed .main-area { margin-left: var(--sidebar-collapsed); }
+.app-shell.sidebar-collapsed .sidebar-logo-text { display: none; }
+.app-shell.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 20px 0 16px; }
+.app-shell.sidebar-collapsed .sidebar-logo-icon { margin: 0; }
+.app-shell.sidebar-collapsed .nav-section-label { display: none; }
+.app-shell.sidebar-collapsed .nav-item { justify-content: center; padding: 10px 0; }
+.app-shell.sidebar-collapsed .nav-item span,
+.app-shell.sidebar-collapsed .nav-item > *:not(i) { display: none; }
+.app-shell.sidebar-collapsed .nav-item i { width: auto; font-size: 1.1rem; }
+.app-shell.sidebar-collapsed .sidebar-toggle { justify-content: center; padding: 10px 0; }
+
+/* Tooltip on collapsed nav items */
+.app-shell.sidebar-collapsed .nav-item { position: relative; }
+.app-shell.sidebar-collapsed .nav-item::after {
+  content: attr(data-label);
+  position: absolute;
+  left: calc(var(--sidebar-collapsed) + 8px);
+  background: #2d3748;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 400;
+}
+.app-shell.sidebar-collapsed .nav-item:hover::after { opacity: 1; }
 
 /* ─── Sidebar overlay (mobile) ───────────────────────────────────────────── */
 .sidebar-overlay {
