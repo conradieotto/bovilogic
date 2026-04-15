@@ -32,14 +32,13 @@
       <div class="sidebar-logo-text">Bovi<span>Logic</span></div>
     </div>
 
-    <div class="sidebar-toggle">
-      <button class="sidebar-toggle-btn" id="sidebarCollapseBtn" onclick="toggleCollapse()" title="Collapse sidebar">
-        <i class="fa-solid fa-chevron-left" id="collapseIcon"></i>
-      </button>
-    </div>
-
     <?php require_once __DIR__ . '/nav.php'; ?>
   </aside>
+
+  <!-- Collapse toggle — fixed tab on RIGHT edge of sidebar -->
+  <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleCollapse()" title="Toggle sidebar">
+    <i class="fa-solid fa-chevron-left" id="collapseIcon"></i>
+  </button>
 
   <!-- Main Area -->
   <div class="main-area">

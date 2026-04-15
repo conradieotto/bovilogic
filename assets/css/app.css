@@ -113,7 +113,7 @@ p  { line-height: 1.6; }
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  transition: transform 0.25s ease;
+  transition: width 0.25s ease, transform 0.25s ease;
   scrollbar-width: none;
 }
 .sidebar::-webkit-scrollbar { display: none; }
@@ -177,30 +177,34 @@ p  { line-height: 1.6; }
 }
 
 /* ─── Sidebar Collapse Toggle ────────────────────────────────────────────── */
-.sidebar-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.sidebar-toggle-btn {
-  background: none;
-  border: none;
+/* Fixed tab that sits on the RIGHT outer edge of the sidebar */
+.sidebar-collapse-btn {
+  position: fixed;
+  left: var(--sidebar-width);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 301;
+  background: var(--sidebar-bg);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-left: none;
   color: var(--sidebar-text);
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  transition: background 0.12s, color 0.12s;
-  display: flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px;
+  width: 18px;
+  height: 44px;
+  border-radius: 0 8px 8px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  transition: left 0.25s ease, color 0.12s, background 0.12s;
+  padding: 0;
 }
-.sidebar-toggle-btn:hover { background: var(--sidebar-hover); color: #fff; }
+.sidebar-collapse-btn:hover { color: #fff; background: #2d3748; }
 
 /* Collapsed state */
 .app-shell.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed); }
 .app-shell.sidebar-collapsed .main-area { margin-left: var(--sidebar-collapsed); }
+.app-shell.sidebar-collapsed .sidebar-collapse-btn { left: var(--sidebar-collapsed); }
 .app-shell.sidebar-collapsed .sidebar-logo-text { display: none; }
 .app-shell.sidebar-collapsed .sidebar-logo { justify-content: center; padding: 20px 0 16px; }
 .app-shell.sidebar-collapsed .sidebar-logo-icon { margin: 0; }
@@ -209,7 +213,6 @@ p  { line-height: 1.6; }
 .app-shell.sidebar-collapsed .nav-item span,
 .app-shell.sidebar-collapsed .nav-item > *:not(i) { display: none; }
 .app-shell.sidebar-collapsed .nav-item i { width: auto; font-size: 1.1rem; }
-.app-shell.sidebar-collapsed .sidebar-toggle { justify-content: center; padding: 10px 0; }
 
 /* Tooltip on collapsed nav items */
 .app-shell.sidebar-collapsed .nav-item { position: relative; }
@@ -247,6 +250,7 @@ p  { line-height: 1.6; }
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  transition: margin-left 0.25s ease;
 }
 
 /* ─── Top Bar ────────────────────────────────────────────────────────────── */
@@ -921,7 +925,11 @@ tr:hover td { background: #f7fafc; }
     transform: translateX(0);
   }
   .main-area {
-    margin-left: 0;
+    margin-left: 0 !important;
+    transition: none;
+  }
+  .sidebar-collapse-btn {
+    display: none;
   }
   .topbar-hamburger {
     display: block;
