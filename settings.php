@@ -8,6 +8,10 @@ requireLogin();
 $user = currentUser();
 loadLanguage($user['language']);
 
+// Fetch 2FA status for current user
+require_once __DIR__ . '/lib/db.php';
+$twoFaEnabled = (bool)DB::val('SELECT totp_enabled FROM users WHERE id = ?', [$user['id']]);
+
 $pageTitle = 'settings';
 require_once __DIR__ . '/templates/header.php';
 ?>
@@ -32,6 +36,38 @@ require_once __DIR__ . '/templates/header.php';
       <p><strong><?= htmlspecialchars($user['name']) ?></strong></p>
       <p class="text-muted text-sm"><?= htmlspecialchars($user['email']) ?></p>
       <p class="text-muted text-sm mt-4">Role: <?= $user['role'] === 'super_admin' ? 'Super Admin' : 'View User' ?></p>
+    </div>
+  </div>
+
+  <!-- 2FA Card -->
+  <div class="card mt-16">
+    <div class="card-header">
+      <h3><i class="fa-solid fa-shield-halved" style="color:var(--blue);margin-right:6px"></i> Two-Factor Authentication</h3>
+    </div>
+    <div class="card-body">
+      <?php if ($twoFaEnabled): ?>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:1.5rem;color:var(--green)"><i class="fa-solid fa-circle-check"></i></span>
+        <div>
+          <p style="font-weight:600;color:var(--green)">2FA is active</p>
+          <p class="text-muted text-sm">Your account is protected with an authenticator app.</p>
+        </div>
+      </div>
+      <a href="/setup-2fa.php" class="btn btn-secondary">
+        <i class="fa-solid fa-rotate-left"></i> Re-setup 2FA (new device)
+      </a>
+      <?php else: ?>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:1.5rem;color:var(--orange)"><i class="fa-solid fa-triangle-exclamation"></i></span>
+        <div>
+          <p style="font-weight:600;color:var(--orange)">2FA not set up</p>
+          <p class="text-muted text-sm">Set up two-factor authentication to secure your account.</p>
+        </div>
+      </div>
+      <a href="/setup-2fa.php" class="btn btn-primary">
+        <i class="fa-solid fa-shield-halved"></i> Set Up 2FA Now
+      </a>
+      <?php endif; ?>
     </div>
   </div>
 

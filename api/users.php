@@ -8,48 +8,71 @@ header('Content-Type: application/json');
 $user   = apiRequireAdmin();
 $method = $_SERVER['REQUEST_METHOD'];
 $id     = (int)($_GET['id'] ?? 0);
+$action = $_GET['action'] ?? '';
+
+// ── Special action: reset 2FA ────────────────────────────────────────────────
+if ($method === 'POST' && $id && $action === 'reset_2fa') {
+    if ($id === (int)$user['id']) jsonError('Cannot reset your own 2FA this way.');
+    DB::exec('UPDATE users SET totp_secret = NULL, totp_enabled = 0 WHERE id = ?', [$id]);
+    logActivity('user', $id, 'update', '2FA reset by admin');
+    jsonSuccess(null, '2FA reset successfully');
+}
+
+$validPerms = ['animals', 'health', 'weights', 'calving', 'sales', 'reports'];
 
 switch ($method) {
     case 'GET':
         if ($id) {
-            $u = DB::row('SELECT id,uuid,name,email,role,language,is_active,last_login,created_at FROM users WHERE id=?', [$id]);
+            $u = DB::row(
+                'SELECT id,uuid,name,email,role,language,is_active,totp_enabled,permissions,last_login,created_at
+                 FROM users WHERE id=?', [$id]
+            );
             $u ? jsonSuccess($u) : jsonNotFound();
         }
-        $users = DB::rows('SELECT id,uuid,name,email,role,language,is_active,last_login,created_at FROM users ORDER BY name');
+        $users = DB::rows(
+            'SELECT id,uuid,name,email,role,language,is_active,totp_enabled,permissions,last_login,created_at
+             FROM users ORDER BY name'
+        );
         jsonSuccess($users);
 
     case 'POST':
-        $b    = getJsonBody();
-        $name = trim($b['name']  ?? '');
-        $email= strtolower(trim($b['email'] ?? ''));
-        $pass = $b['password'] ?? '';
-        $role = $b['role'] ?? 'view_user';
+        $b     = getJsonBody();
+        $name  = trim($b['name']  ?? '');
+        $email = strtolower(trim($b['email'] ?? ''));
+        $pass  = $b['password'] ?? '';
+        $role  = $b['role'] ?? 'view_user';
+
         if (!$name || !$email || !$pass) jsonError('Name, email and password are required.');
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) jsonError('Invalid email.');
         if (strlen($pass) < 8) jsonError('Password must be at least 8 characters.');
         if (!in_array($role, ['super_admin','view_user'])) jsonError('Invalid role.');
-        if (DB::val('SELECT id FROM users WHERE email=?',[$email])) jsonError('Email already exists.');
+        if (DB::val('SELECT id FROM users WHERE email=?', [$email])) jsonError('Email already exists.');
+
+        $permsJson = encodePermissions($b['permissions'] ?? null, $role, $validPerms);
 
         $uid = DB::insert(
-            'INSERT INTO users (uuid,name,email,password,role,language) VALUES (?,?,?,?,?,?)',
-            [DB::uuid(), $name, $email, password_hash($pass, PASSWORD_BCRYPT), $role, $b['language'] ?? 'en']
+            'INSERT INTO users (uuid,name,email,password,role,language,permissions) VALUES (?,?,?,?,?,?,?)',
+            [DB::uuid(), $name, $email, password_hash($pass, PASSWORD_BCRYPT), $role, $b['language'] ?? 'en', $permsJson]
         );
         logActivity('user', $uid, 'create', "User created: $email");
         jsonSuccess(['id' => $uid], 'User created', 201);
 
     case 'PUT':
         if (!$id) jsonError('Missing ID.');
-        $b    = getJsonBody();
-        $name = trim($b['name'] ?? '');
-        $email= strtolower(trim($b['email'] ?? ''));
-        $role = $b['role'] ?? 'view_user';
+        $b     = getJsonBody();
+        $name  = trim($b['name'] ?? '');
+        $email = strtolower(trim($b['email'] ?? ''));
+        $role  = $b['role'] ?? 'view_user';
+
         if (!$name || !$email) jsonError('Name and email are required.');
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) jsonError('Invalid email.');
         if (!in_array($role, ['super_admin','view_user'])) jsonError('Invalid role.');
-        if (DB::val('SELECT id FROM users WHERE email=? AND id!=?',[$email,$id])) jsonError('Email already used.');
+        if (DB::val('SELECT id FROM users WHERE email=? AND id!=?', [$email, $id])) jsonError('Email already used.');
 
-        $sets = ['name=?','email=?','role=?','language=?','is_active=?'];
-        $vals = [$name, $email, $role, $b['language'] ?? 'en', isset($b['is_active']) ? (int)$b['is_active'] : 1];
+        $permsJson = encodePermissions($b['permissions'] ?? null, $role, $validPerms);
+
+        $sets = ['name=?','email=?','role=?','language=?','is_active=?','permissions=?'];
+        $vals = [$name, $email, $role, $b['language'] ?? 'en', isset($b['is_active']) ? (int)$b['is_active'] : 1, $permsJson];
 
         if (!empty($b['password'])) {
             if (strlen($b['password']) < 8) jsonError('Password must be at least 8 characters.');
@@ -63,10 +86,22 @@ switch ($method) {
 
     case 'DELETE':
         if (!$id) jsonError('Missing ID.');
-        if ($id === $user['id']) jsonError('Cannot delete yourself.');
+        if ($id === (int)$user['id']) jsonError('Cannot delete yourself.');
         DB::exec('UPDATE users SET is_active = 0 WHERE id = ?', [$id]);
         logActivity('user', $id, 'delete', 'User deactivated');
         jsonSuccess(null, 'User deactivated');
 
     default: jsonError('Method not allowed', 405);
+}
+
+/** Encode permissions array to JSON string (null for super_admin or no restrictions) */
+function encodePermissions($input, string $role, array $valid): ?string {
+    if ($role !== 'view_user' || !is_array($input)) return null;
+    $out = [];
+    foreach ($valid as $k) {
+        $out[$k] = (bool)($input[$k] ?? true);
+    }
+    // If all true, store null (means full access)
+    if (!in_array(false, $out, true)) return null;
+    return json_encode($out);
 }

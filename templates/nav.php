@@ -1,6 +1,7 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF'], '.php');
-$userRole    = $_SESSION['user_role'] ?? 'viewer';
+$userRole    = $_SESSION['user_role'] ?? 'view_user';
+$isAdmin     = $userRole === 'super_admin';
 ?>
 <nav class="sidebar-nav">
 
@@ -9,6 +10,8 @@ $userRole    = $_SESSION['user_role'] ?? 'viewer';
   <a href="/index.php" class="nav-item <?= $currentPage === 'index' ? 'active' : '' ?>" data-label="<?= t('nav_dashboard') ?>">
     <i class="fa-solid fa-gauge-high"></i> <span><?= t('nav_dashboard') ?></span>
   </a>
+
+  <?php if ($isAdmin || hasPermission('animals')): ?>
   <a href="/farms.php" class="nav-item <?= $currentPage === 'farms' ? 'active' : '' ?>" data-label="<?= t('nav_farms') ?>">
     <i class="fa-solid fa-tractor"></i> <span><?= t('nav_farms') ?></span>
   </a>
@@ -21,9 +24,13 @@ $userRole    = $_SESSION['user_role'] ?? 'viewer';
   <a href="/animals.php" class="nav-item <?= $currentPage === 'animals' ? 'active' : '' ?>" data-label="<?= t('nav_animals') ?>">
     <i class="fa-solid fa-cow"></i> <span><?= t('nav_animals') ?></span>
   </a>
+  <?php endif; ?>
+
+  <?php if ($isAdmin || hasPermission('reports')): ?>
   <a href="/reports.php" class="nav-item <?= $currentPage === 'reports' ? 'active' : '' ?>" data-label="<?= t('nav_reports') ?>">
     <i class="fa-solid fa-chart-bar"></i> <span><?= t('nav_reports') ?></span>
   </a>
+  <?php endif; ?>
 
   <div class="nav-section-label">Manage</div>
 
@@ -33,13 +40,15 @@ $userRole    = $_SESSION['user_role'] ?? 'viewer';
   <a href="/alerts.php" class="nav-item <?= $currentPage === 'alerts' ? 'active' : '' ?>" data-label="<?= t('nav_alerts') ?>">
     <i class="fa-solid fa-bell"></i> <span><?= t('nav_alerts') ?></span>
   </a>
+
+  <?php if ($isAdmin): ?>
   <a href="/quick-actions.php" class="nav-item <?= $currentPage === 'quick-actions' ? 'active' : '' ?>" data-label="<?= t('nav_quick_actions') ?>">
     <i class="fa-solid fa-bolt"></i> <span><?= t('nav_quick_actions') ?></span>
   </a>
+  <?php endif; ?>
 
-  <?php if (in_array($userRole, ['admin', 'super_admin'])): ?>
+  <?php if ($isAdmin): ?>
   <div class="nav-section-label">Admin</div>
-
   <a href="/users.php" class="nav-item <?= $currentPage === 'users' ? 'active' : '' ?>" data-label="<?= t('nav_users') ?>">
     <i class="fa-solid fa-users"></i> <span><?= t('nav_users') ?></span>
   </a>
