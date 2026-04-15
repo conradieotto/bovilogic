@@ -305,8 +305,8 @@ p  { line-height: 1.6; }
   flex: 1;
   padding: 24px;
 }
-.page-wrap { max-width: 800px; margin: 0 auto; }
-.page-wide  { max-width: 1200px; margin: 0 auto; }
+.page-wrap { max-width: 100%; }
+.page-wide  { max-width: 1400px; margin: 0 auto; }
 
 /* ─── Page Header ────────────────────────────────────────────────────────── */
 .page-header {
