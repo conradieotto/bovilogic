@@ -432,12 +432,13 @@ p  { line-height: 1.6; }
   color: var(--blue);
   font-size: 1rem;
 }
+.list-item .item-icon svg { width: 20px; height: 20px; flex-shrink: 0; fill: currentColor; }
 .list-item .item-body  { flex: 1; min-width: 0; }
 .list-item .item-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); font-size: 0.9375rem; }
 .list-item .item-sub   { font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px; }
 .list-item .item-end   { text-align: right; flex-shrink: 0; color: var(--text-muted); font-size: 0.875rem; }
 .list-item .item-end .badge { display: block; margin-bottom: 2px; }
-.list-item .chevron { color: var(--text-faint); }
+.list-item .chevron    { width: 18px; height: 18px; flex-shrink: 0; fill: var(--text-faint); color: var(--text-faint); }
 
 /* ─── Dashboard Buttons ──────────────────────────────────────────────────── */
 .dash-grid {
