@@ -6,5 +6,6 @@ deployment:
     - /bin/cp -rp db /home/bovilogicco/public_html/
     - /bin/cp -rp lang /home/bovilogicco/public_html/
     - /bin/cp -rp lib /home/bovilogicco/public_html/
-    - /bin/cp -p manifest.json sw.js .htaccess /home/bovilogicco/public_html/
+    - /bin/cp -rp templates /home/bovilogicco/public_html/
+    - /bin/cp -p manifest.json sw.js /home/bovilogicco/public_html/
     - /bin/cp -p *.php /home/bovilogicco/public_html/

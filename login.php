@@ -5,7 +5,7 @@ require_once __DIR__ . '/lib/language.php';
 
 // Already logged in → go home
 if (isLoggedIn()) {
-    header('Location: /index.php');
+    header('Location: ' . APP_URL . '/index.php');
     exit;
 }
 
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = attemptLogin($email, $password);
         if ($user) {
             setcookie('bl_lang', $user['language'], time() + 60*60*24*365, '/');
-            header('Location: /index.php');
+            header('Location: ' . APP_URL . '/index.php');
             exit;
         } else {
             $error = t('invalid_login');
