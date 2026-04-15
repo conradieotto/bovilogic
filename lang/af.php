@@ -36,10 +36,19 @@ return [
     // Navigation
     'nav_dashboard'    => 'Oorsig',
     'nav_farms'        => 'Plase',
+    'nav_camps'        => 'Kampe',
     'nav_herds'        => 'Kuddes',
     'nav_animals'      => 'Diere',
     'nav_reports'      => 'Verslae',
     'nav_more'         => 'Meer',
+    'nav_summary'      => 'Opsomming',
+    'nav_alerts'       => 'Waarskuwings',
+    'nav_quick_actions'=> 'Vinnige Aksies',
+    'nav_users'        => 'Gebruikers',
+    'nav_activity'     => 'Aktiwiteitslog',
+    'nav_settings'     => 'Instellings',
+    'nav_profile'      => 'Profiel',
+    'nav_logout'       => 'Teken uit',
 
     // Dashboard
     'dashboard'        => 'Oorsig',

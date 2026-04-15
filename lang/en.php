@@ -36,10 +36,19 @@ return [
     // Navigation
     'nav_dashboard'    => 'Dashboard',
     'nav_farms'        => 'Farms',
+    'nav_camps'        => 'Camps',
     'nav_herds'        => 'Herds',
     'nav_animals'      => 'Animals',
     'nav_reports'      => 'Reports',
     'nav_more'         => 'More',
+    'nav_summary'      => 'Summary',
+    'nav_alerts'       => 'Alerts',
+    'nav_quick_actions'=> 'Quick Actions',
+    'nav_users'        => 'Users',
+    'nav_activity'     => 'Activity Log',
+    'nav_settings'     => 'Settings',
+    'nav_profile'      => 'Profile',
+    'nav_logout'       => 'Logout',
 
     // Dashboard
     'dashboard'        => 'Dashboard',
