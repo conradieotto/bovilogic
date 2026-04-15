@@ -1,5 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/bovilogicco/public_html
-    - /usr/bin/rsync -av --exclude='.git' --exclude='.cpanel.yml' --exclude='lib/config.local.php' . $DEPLOYPATH/
+    - /usr/bin/rsync -av --exclude='.git' --exclude='.cpanel.yml' --exclude='lib/config.local.php' . ~/public_html/
