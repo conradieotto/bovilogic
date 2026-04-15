@@ -1,4 +1,10 @@
 ---
 deployment:
   tasks:
-    - /usr/bin/rsync -av --exclude='.git' --exclude='.cpanel.yml' --exclude='lib/config.local.php' . /home/bovilogicco/public_html/
+    - /bin/cp -rp api /home/bovilogicco/public_html/
+    - /bin/cp -rp assets /home/bovilogicco/public_html/
+    - /bin/cp -rp db /home/bovilogicco/public_html/
+    - /bin/cp -rp lang /home/bovilogicco/public_html/
+    - /bin/cp -rp lib /home/bovilogicco/public_html/
+    - /bin/cp -p manifest.json sw.js .htaccess /home/bovilogicco/public_html/
+    - /bin/cp -p *.php /home/bovilogicco/public_html/
