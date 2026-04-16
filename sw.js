@@ -3,12 +3,10 @@
  * Cache-first for static assets, Network-first for API, offline fallback.
  */
 
-const CACHE_NAME     = 'bovilogic-v1';
+const CACHE_NAME     = 'bovilogic-v2';
 const OFFLINE_URL    = '/offline/offline.html';
 
 const STATIC_ASSETS = [
-  '/',
-  '/index.php',
   '/offline/offline.html',
   '/manifest.json',
   '/assets/css/app.css',

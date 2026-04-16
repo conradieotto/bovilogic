@@ -28,7 +28,7 @@ if (!defined('APP_VERSION')) define('APP_VERSION', '1.3.1');
 if (!defined('APP_ROOT'))    define('APP_ROOT',    dirname(__DIR__));
 
 // ─── Session ─────────────────────────────────────────────────────────────────
-if (!defined('SESSION_NAME'))     define('SESSION_NAME',     'bl_session');
+if (!defined('SESSION_NAME'))     define('SESSION_NAME',     'bl_session_v2');  // bump to invalidate all old sessions
 if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 0);  // expires when browser/app is closed
 
 // ─── Timezone ────────────────────────────────────────────────────────────────
