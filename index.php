@@ -196,10 +196,10 @@ require_once __DIR__ . '/templates/header.php';
 <!-- Quick Stat Strip (loaded via JS) -->
 <div class="section-header"><h2><?= t('summary') ?></h2></div>
 <div class="stat-grid" id="dash-stats">
-  <div class="stat-card"><span class="stat-val" id="stat-total">–</span><span class="stat-label"><?= t('total_animals') ?></span></div>
-  <div class="stat-card alert"><span class="stat-val" id="stat-vaccines">–</span><span class="stat-label"><?= t('vaccines_due') ?></span></div>
-  <div class="stat-card"><span class="stat-val" id="stat-calvings">–</span><span class="stat-label"><?= t('upcoming_calvings') ?></span></div>
-  <div class="stat-card"><span class="stat-val" id="stat-sale">–</span><span class="stat-label"><?= t('animals_for_sale') ?></span></div>
+  <a href="/animals.php" class="stat-card stat-card-link"><span class="stat-val" id="stat-total">–</span><span class="stat-label"><?= t('total_animals') ?></span></a>
+  <a href="/alerts.php"  class="stat-card stat-card-link alert"><span class="stat-val" id="stat-vaccines">–</span><span class="stat-label"><?= t('vaccines_due') ?></span></a>
+  <a href="/summary.php" class="stat-card stat-card-link"><span class="stat-val" id="stat-calvings">–</span><span class="stat-label"><?= t('upcoming_calvings') ?></span></a>
+  <a href="/animals.php" class="stat-card stat-card-link"><span class="stat-val" id="stat-sale">–</span><span class="stat-label"><?= t('animals_for_sale') ?></span></a>
 </div>
 
 
