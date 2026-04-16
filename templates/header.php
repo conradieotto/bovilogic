@@ -37,6 +37,37 @@
     <?php require_once __DIR__ . '/nav.php'; ?>
   </aside>
 
+  <!-- Bottom Navigation Bar (mobile only) -->
+  <?php
+  $currentPage = basename($_SERVER['PHP_SELF'], '.php');
+  $userRole    = $_SESSION['user_role'] ?? 'view_user';
+  $isAdmin     = $userRole === 'super_admin';
+  ?>
+  <nav class="bottom-nav">
+    <a href="/index.php"   class="bottom-nav-item <?= $currentPage === 'index'   ? 'active' : '' ?>">
+      <i class="fa-solid fa-gauge-high"></i>
+      <span><?= t('nav_dashboard') ?></span>
+    </a>
+    <?php if ($isAdmin || hasPermission('animals')): ?>
+    <a href="/animals.php" class="bottom-nav-item <?= $currentPage === 'animals' ? 'active' : '' ?>">
+      <i class="fa-solid fa-cow"></i>
+      <span><?= t('nav_animals') ?></span>
+    </a>
+    <?php endif; ?>
+    <a href="/alerts.php"  class="bottom-nav-item <?= $currentPage === 'alerts'  ? 'active' : '' ?>">
+      <i class="fa-solid fa-bell"></i>
+      <span><?= t('nav_alerts') ?></span>
+    </a>
+    <a href="/summary.php" class="bottom-nav-item <?= $currentPage === 'summary' ? 'active' : '' ?>">
+      <i class="fa-solid fa-calendar-days"></i>
+      <span><?= t('nav_summary') ?></span>
+    </a>
+    <a href="/more.php"    class="bottom-nav-item <?= $currentPage === 'more'    ? 'active' : '' ?>">
+      <i class="fa-solid fa-ellipsis"></i>
+      <span><?= t('nav_more') ?></span>
+    </a>
+  </nav>
+
   <!-- Collapse toggle — fixed tab on RIGHT edge of sidebar -->
   <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" onclick="toggleCollapse()" title="Toggle sidebar">
     <i class="fa-solid fa-chevron-left" id="collapseIcon"></i>
