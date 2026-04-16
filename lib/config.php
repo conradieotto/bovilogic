@@ -29,7 +29,7 @@ if (!defined('APP_ROOT'))    define('APP_ROOT',    dirname(__DIR__));
 
 // ─── Session ─────────────────────────────────────────────────────────────────
 if (!defined('SESSION_NAME'))     define('SESSION_NAME',     'bl_session');
-if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 60 * 60 * 8);  // 8 hours
+if (!defined('SESSION_LIFETIME')) define('SESSION_LIFETIME', 0);  // expires when browser/app is closed
 
 // ─── Timezone ────────────────────────────────────────────────────────────────
 date_default_timezone_set('Africa/Johannesburg');
