@@ -153,8 +153,11 @@ function loadUsers() {
             <button class="btn btn-sm btn-secondary" onclick="editUser(event,${JSON.stringify(u).replace(/"/g,'&quot;')})">
               <i class="fa-solid fa-pen"></i>
             </button>
-            ${!isSelf ? `<button class="btn btn-sm btn-danger" onclick="resetTwoFa(event,${u.id},'${escHtml(u.name).replace(/'/g,"\\'")}')">
+            ${!isSelf ? `<button class="btn btn-sm btn-secondary" onclick="resetTwoFa(event,${u.id},'${escHtml(u.name).replace(/'/g,"\\'")}')">
               <i class="fa-solid fa-rotate-left"></i> 2FA
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser(event,${u.id},'${escHtml(u.name).replace(/'/g,"\\'")}')">
+              <i class="fa-solid fa-trash"></i>
             </button>` : ''}
           </div>
         </div>`;
@@ -253,6 +256,18 @@ function resetTwoFa(e, id, name) {
       if (res.success) { loadUsers(); showToast('2FA reset – user must set up again on next login'); }
       else alert(res.message || 'Error resetting 2FA.');
     });
+}
+
+function deleteUser(e, id, name) {
+  e.stopPropagation();
+  if (!confirm(`Delete "${name}"?\n\nThis cannot be undone.`)) return;
+  fetch(`/api/users.php?id=${id}`, { method: 'DELETE' })
+    .then(r => r.json())
+    .then(res => {
+      if (res.success) { loadUsers(); showToast('User deleted'); }
+      else alert(res.message || 'Error deleting user.');
+    })
+    .catch(() => alert('Network error.'));
 }
 
 function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }

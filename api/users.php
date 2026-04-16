@@ -113,9 +113,11 @@ switch ($method) {
     case 'DELETE':
         if (!$id) jsonError('Missing ID.');
         if ($id === (int)$user['id']) jsonError('Cannot delete yourself.');
-        DB::exec('UPDATE users SET is_active = 0 WHERE id = ?', [$id]);
-        logActivity('user', $id, 'delete', 'User deactivated');
-        jsonSuccess(null, 'User deactivated');
+        $target = DB::row('SELECT name, email FROM users WHERE id=?', [$id]);
+        if (!$target) jsonNotFound();
+        DB::exec('DELETE FROM users WHERE id = ?', [$id]);
+        logActivity('user', $id, 'delete', 'User deleted: ' . $target['email']);
+        jsonSuccess(null, 'User deleted');
 
     default: jsonError('Method not allowed', 405);
 }
