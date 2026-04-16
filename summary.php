@@ -89,7 +89,7 @@ fetch('/api/dashboard.php')
         });
         return calvings30.length ? `
       <div class="section-header"><h2>${T.upcoming_calvings}</h2></div>
-      <div class="list-card" style="margin:0 16px 16px">
+      <div class="list-card list-card-inset" style="margin:0 16px 16px">
         ${calvings30.map(a => {
           const due = a.expected_calving ? new Date(a.expected_calving) : null;
           const today = new Date(); today.setHours(0,0,0,0);
@@ -109,7 +109,7 @@ fetch('/api/dashboard.php')
 
       <div class="section-header"><h2>${T.farm_summary}</h2></div>
       ${(d.farm_summary||[]).map(f=>`
-        <div class="list-card" style="margin:0 16px 16px">
+        <div class="list-card list-card-inset" style="margin:0 16px 16px">
           <a href="/camps.php?farm=${f.id}" class="list-item" style="background:var(--surface-2,#f5f5f5)">
             <div class="item-body"><div class="item-title" style="font-weight:700">${escHtml(f.name)}</div></div>
             <strong>${f.animal_count} ${T.animals_count}</strong>
@@ -122,7 +122,7 @@ fetch('/api/dashboard.php')
             </div>
           `).join('')}
         </div>
-      `).join('') || `<div class="list-card" style="margin:0 16px 16px"><div class="p-16 text-muted text-sm">${T.no_farms_yet}</div></div>`}
+      `).join('') || `<div class="list-card list-card-inset" style="margin:0 16px 16px"><div class="p-16 text-muted text-sm">${T.no_farms_yet}</div></div>`}
     `;
     loadMonthly();
   });
@@ -149,7 +149,7 @@ function loadMonthly() {
 
       html += `
         <div class="section-header"><h2>${T.by_category}</h2></div>
-        <div class="list-card" style="margin:0 16px 16px">
+        <div class="list-card list-card-inset" style="margin:0 16px 16px">
           ${(d.by_category||[]).map(c=>`
             <div class="list-item">
               <div class="item-body"><div class="item-title">${escHtml(catLabel(c.category))}</div></div>
@@ -161,7 +161,7 @@ function loadMonthly() {
       if (sold.length) {
         html += `
         <div class="section-header"><h2>${T.sold_in} ${monthLabel}</h2></div>
-        <div class="list-card" style="margin:0 16px 16px">
+        <div class="list-card list-card-inset" style="margin:0 16px 16px">
           ${sold.map(a=>`
             <a href="/animal-detail.php?id=${a.id}" class="list-item">
               <div class="item-body">
@@ -178,7 +178,7 @@ function loadMonthly() {
       if (newborns.length) {
         html += `
         <div class="section-header"><h2>${T.born_in} ${monthLabel}</h2></div>
-        <div class="list-card" style="margin:0 16px 16px">
+        <div class="list-card list-card-inset" style="margin:0 16px 16px">
           ${newborns.map(a=>`
             <a href="/animal-detail.php?id=${a.id}" class="list-item">
               <div class="item-body">
@@ -197,7 +197,7 @@ function loadMonthly() {
         const totalVal  = purchases.reduce((s,p)=>s+parseFloat(p.price_zar),0);
         html += `
         <div class="section-header"><h2>${T.purchased_in} ${monthLabel}</h2></div>
-        <div class="list-card" style="margin:0 16px 16px">
+        <div class="list-card list-card-inset" style="margin:0 16px 16px">
           ${purchases.map(p=>`
             <div class="list-item">
               <div class="item-body">
@@ -216,7 +216,7 @@ function loadMonthly() {
       if (dead.length) {
         html += `
         <div class="section-header"><h2>${T.deaths_in} ${monthLabel}</h2></div>
-        <div class="list-card" style="margin:0 16px 16px">
+        <div class="list-card list-card-inset" style="margin:0 16px 16px">
           ${dead.map(a=>`
             <a href="/animal-detail.php?id=${a.id}" class="list-item">
               <div class="item-body">

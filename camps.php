@@ -150,7 +150,7 @@ function loadCamps() {
             </div>
           </div>
           ${isAdmin ? `
-          <div style="display:flex;gap:6px;flex-shrink:0" onclick="event.preventDefault()">
+          <div class="list-actions" onclick="event.preventDefault()">
             <button class="btn btn-sm btn-secondary" onclick="editCamp(event,${JSON.stringify(c).replace(/"/g,'&quot;')})">${T.edit}</button>
             <button class="btn btn-sm btn-danger"    onclick="deleteCamp(event,${c.id},'${escHtml(c.name)}')">${T.delete}</button>
           </div>` : ''}

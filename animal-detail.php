@@ -61,8 +61,7 @@ $statusClass = ['active' => 'badge-green', 'sold' => 'badge-amber', 'dead' => 'b
 </div>
 
 <!-- Animal Summary Card -->
-<div style="padding: 16px;">
-<div class="card">
+<div class="card" style="margin-top:4px">
   <div class="card-body">
     <div class="flex-between mb-8">
       <div>
@@ -128,7 +127,6 @@ $statusClass = ['active' => 'badge-green', 'sold' => 'badge-amber', 'dead' => 'b
     <p class="text-muted text-sm mt-12"><?= htmlspecialchars($animal['comments']) ?></p>
     <?php endif; ?>
   </div>
-</div>
 </div>
 
 <!-- Tabs -->
@@ -317,9 +315,9 @@ function loadWeights() {
             <div class="item-sub">${formatDate(w.weigh_date)}${w.notes ? ' · ' + escHtml(w.notes) : ''}</div>
           </div>
           <?php if (isSuperAdmin()): ?>
-          <button class="btn btn-sm btn-secondary"
+          <button class="btn btn-sm btn-secondary" style="flex-shrink:0"
             data-id="${w.id}" data-kg="${w.weight_kg}" data-date="${w.weigh_date}" data-notes="${escHtml(w.notes||'')}"
-            onclick="editWeightFromBtn(this)">Edit</button>
+            onclick="editWeightFromBtn(this)">${T.edit}</button>
           <?php endif; ?>
         </div>`;
       }).join('') + '</div>';

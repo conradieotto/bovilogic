@@ -76,6 +76,8 @@ let activeStatus = '';
 let activeCat    = '';
 let searchTimer  = null;
 
+const T = <?= json_encode(['edit' => t('edit'), 'delete' => t('delete')]) ?>;
+
 const categoryLabels = {
   breeding_bull:      '<?= t('cat_breeding_bull') ?>',
   breeding_cow:       '<?= t('cat_breeding_cow') ?>',
@@ -137,9 +139,9 @@ function renderAnimals(animals) {
         </div>
       </a>
       ${admin ? `
-      <div style="display:flex;gap:6px;margin-left:8px;flex-shrink:0">
-        <a href="/animal-form.php?id=${a.id}" class="btn btn-sm btn-secondary">Edit</a>
-        <button class="btn btn-sm btn-danger" onclick="deleteAnimal(${a.id},'${escHtml(a.ear_tag)}')">Delete</button>
+      <div class="list-actions">
+        <a href="/animal-form.php?id=${a.id}" class="btn btn-sm btn-secondary">${T.edit}</a>
+        <button class="btn btn-sm btn-danger" onclick="deleteAnimal(${a.id},'${escHtml(a.ear_tag)}')">${T.delete}</button>
       </div>` : ''}
     </div>
   `).join('') + '</div>';

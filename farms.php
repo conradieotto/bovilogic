@@ -80,7 +80,7 @@ function renderFarms(farms) {
   }
   el.innerHTML = '<div class="list-card">' + farms.map(f => {
     const adminBtns = isAdmin
-      ? `<div style="display:flex;gap:6px">
+      ? `<div class="list-actions">
            <button class="btn btn-sm btn-secondary" onclick="editFarm(event,${f.id})">${T.edit}</button>
            <button class="btn btn-sm btn-danger" onclick="deleteFarm(event,${f.id})">${T.delete}</button>
          </div>`

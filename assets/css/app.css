@@ -1066,6 +1066,37 @@ tr:hover td { background: #f7fafc; }
   }
 }
 
+/* ─── List item admin action buttons ────────────────────────────────────── */
+.list-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 8px;
+  align-items: center;
+}
+@media (max-width: 480px) {
+  .list-actions {
+    gap: 4px;
+    margin-left: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .list-actions .btn-sm {
+    padding: 4px 7px;
+    font-size: 0.7rem;
+  }
+}
+
+/* ─── Section-header / list-card indent pattern (used in alerts, summary) ─ */
+/* On mobile, remove the extra 16px horizontal margin from indented cards    */
+@media (max-width: 768px) {
+  /* Inline margin:0 16px pattern override — add a helper class for these */
+  .list-card-inset {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}
+
 /* ─── Extra-small phones (≤ 390px) ──────────────────────────────────────── */
 @media (max-width: 390px) {
   .page-content { padding: 8px; }

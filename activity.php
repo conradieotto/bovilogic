@@ -36,7 +36,7 @@ function loadActivity(reset=false) {
       const items = res.data.items||[];
       const total = res.data.total||0;
       if(!items.length){el.innerHTML=`<div class="empty-state"><p>${noActivity}</p></div>`;return;}
-      const html = '<div class="list-card" style="margin:0 16px 16px">'+items.map(a=>`
+      const html = '<div class="list-card list-card-inset" style="margin:0 16px 16px">'+items.map(a=>`
         <div class="list-item">
           <div class="item-icon"><svg viewBox="0 0 24 24"><path d="M13 2.05V4.05C17.39 4.59 20.5 8.58 19.96 12.97C19.5 16.61 16.64 19.5 13 19.93V21.93C18.5 21.38 22.5 16.5 21.95 11C21.5 6.25 17.73 2.5 13 2.05M11 2.06C9.05 2.25 7.19 3 5.67 4.26L7.1 5.74C8.22 4.84 9.57 4.26 11 4.06V2.06"/></svg></div>
           <div class="item-body">

@@ -131,7 +131,7 @@ function loadHerds() {
         </div>
         <div class="item-end">
           ${isAdmin ? `
-            <div style="display:flex;gap:6px">
+            <div class="list-actions">
               <button class="btn btn-sm btn-secondary" onclick="editHerd(event,${JSON.stringify(h).replace(/"/g,'&quot;')})">${T.edit}</button>
               <button class="btn btn-sm btn-danger"    onclick="deleteHerd(event,${h.id},${JSON.stringify(h.name).replace(/"/g,'&quot;')})">${T.delete}</button>
             </div>` : ''}

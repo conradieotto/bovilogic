@@ -18,22 +18,22 @@ require_once __DIR__ . '/templates/header.php';
 </div>
 
 <div class="section-header"><h2><?= t('losing_weight') ?></h2></div>
-<div id="weight-loss" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+<div id="weight-loss" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <div class="section-header"><h2><?= t('poor_calving_interval') ?></h2></div>
-<div id="poor-calving" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+<div id="poor-calving" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <div class="section-header"><h2><?= t('bad_pregnancy_rate') ?></h2></div>
-<div id="bad-pregnancy" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+<div id="bad-pregnancy" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <div class="section-header"><h2><?= t('overdue') ?></h2></div>
-<div id="vacc-overdue" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+<div id="vacc-overdue" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <div class="section-header"><h2><?= t('due_this_week') ?></h2></div>
-<div id="vacc-due" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+<div id="vacc-due" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <div class="section-header"><h2><?= t('upcoming_calvings') ?></h2></div>
-<div id="calvings" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+<div id="calvings" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <script>
 var IS_ADMIN = <?= $isAdmin ? 'true' : 'false' ?>;
