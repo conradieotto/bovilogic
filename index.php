@@ -77,6 +77,10 @@ require_once __DIR__ . '/templates/header.php';
   letter-spacing: -0.04em;
   text-shadow: 0 4px 32px rgba(0,0,0,0.7);
 }
+@media (max-width: 480px) {
+  #splash-logo { font-size: 3.5rem; }
+  #splash-tagline { font-size: 0.85rem; }
+}
 #splash-logo span { color: #FFDE00; }
 #splash-tagline {
   font-size: 1rem;
