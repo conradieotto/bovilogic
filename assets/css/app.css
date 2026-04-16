@@ -353,7 +353,7 @@ p  { line-height: 1.6; }
   color: var(--blue);
 }
 .stat-card .stat-val   { font-size: 2rem; font-weight: 800; color: var(--text); line-height: 1; letter-spacing: -0.03em; }
-.stat-card .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; font-weight: 500; }
+.stat-card .stat-label { font-size: 0.8rem; color: #4a5568; margin-top: 12px; font-weight: 600; }
 .stat-card.green  { border-top-color: var(--green);  } .stat-card.green  .stat-icon { color: var(--green); }
 .stat-card.orange { border-top-color: var(--orange); } .stat-card.orange .stat-icon { color: var(--orange); }
 .stat-card.purple { border-top-color: var(--purple); } .stat-card.purple .stat-icon { color: var(--purple); }
