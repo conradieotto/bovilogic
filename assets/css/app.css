@@ -917,8 +917,13 @@ tr:hover td { background: #f7fafc; }
 .neon { color: var(--blue); }
 .sidebar-layout { display: contents; }
 
+/* ─── Hidden-mobile utility (used in header.php topbar) ─────────────────── */
+.hidden-mobile { display: none !important; }
+@media (min-width: 769px) { .hidden-mobile { display: inline !important; } }
+
 /* ─── Mobile ─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
+  /* Sidebar */
   .sidebar {
     transform: translateX(-100%);
   }
@@ -928,33 +933,153 @@ tr:hover td { background: #f7fafc; }
   .main-area {
     margin-left: 0 !important;
     transition: none;
+    overflow-x: hidden;
   }
   .sidebar-collapse-btn {
     display: none;
   }
+
+  /* Topbar */
   .topbar-hamburger {
     display: block;
   }
-  .page-content {
-    padding: 16px;
+  .topbar {
+    padding: 0 12px;
+    gap: 8px;
   }
+  .topbar-title {
+    font-size: 1rem;
+  }
+
+  /* Page content — reduce padding so inner elements have room */
+  .page-content {
+    padding: 12px;
+  }
+
+  /* Page header */
+  .page-header {
+    margin-bottom: 12px;
+    padding: 0;
+  }
+  .page-header h1 {
+    font-size: 1.15rem;
+  }
+
+  /* Stat cards */
   .stat-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 10px;
+    margin-bottom: 16px;
   }
+  .stat-card {
+    padding: 14px 12px;
+  }
+  .stat-card .stat-val {
+    font-size: 1.6rem;
+  }
+
+  /* Dashboard buttons */
   .dash-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
+  .dash-btn {
+    padding: 14px 10px;
+    font-size: 0.8125rem;
+    gap: 8px;
+  }
+  .dash-btn svg { width: 22px; height: 22px; }
+
+  /* Dashboard hero */
+  .dash-hero {
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .dash-hero-title { font-size: 1.4rem; }
+
+  /* List items — reduce padding, allow buttons to be smaller */
+  .list-item {
+    padding: 11px 12px;
+    gap: 8px;
+  }
+  .list-item .item-icon {
+    width: 34px; height: 34px;
+  }
+  /* Admin action buttons in list items */
+  .list-item .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.75rem;
+  }
+
+  /* Section header inner margins — compensate for page-content 12px padding */
+  .section-header {
+    padding: 0 4px;
+  }
+
+  /* Cards */
+  .card-body { padding: 14px; }
+  .card-header { padding: 12px 14px; }
+
+  /* Detail rows — prevent min-width overflow */
+  .detail-label {
+    min-width: 90px;
+    font-size: 0.75rem;
+  }
+
+  /* Filter chips — smaller on mobile */
+  .filter-chip {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  /* Tab buttons */
+  .tab-btn {
+    padding: 10px 12px;
+    font-size: 0.8125rem;
+  }
+
+  /* Modal */
+  .modal-sheet {
+    max-height: 88vh;
+  }
+
+  /* Forms */
   .form-row {
     grid-template-columns: 1fr;
   }
+
+  /* Toast */
   .toast-container {
-    bottom: 16px; right: 16px; left: 16px;
+    bottom: 16px; right: 12px; left: 12px;
   }
+
+  /* FAB */
   .fab {
-    bottom: 20px;
-    right: 20px;
+    bottom: 16px;
+    right: 16px;
+    width: 46px; height: 46px;
   }
+
+  /* Search bar */
+  .search-bar input {
+    font-size: 0.875rem;
+  }
+}
+
+/* ─── Extra-small phones (≤ 390px) ──────────────────────────────────────── */
+@media (max-width: 390px) {
+  .page-content { padding: 8px; }
+  .topbar { padding: 0 10px; }
+  .stat-card .stat-val { font-size: 1.35rem; }
+  .stat-card .stat-label { font-size: 0.7rem; }
+  .page-header h1 { font-size: 1rem; }
+  .list-item { padding: 10px 10px; gap: 6px; }
+  .list-item .item-icon { width: 30px; height: 30px; }
+  .list-item .item-title { font-size: 0.875rem; }
+  .list-item .item-sub   { font-size: 0.75rem; }
+  .detail-label { min-width: 80px; }
+  .filter-chip  { padding: 4px 8px; font-size: 0.7rem; }
+  .dash-btn     { padding: 12px 8px; font-size: 0.75rem; }
 }
 
 /* ─── Splash Screen ──────────────────────────────────────────────────────── */
