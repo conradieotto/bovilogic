@@ -20,7 +20,7 @@ require_once __DIR__ . '/templates/header.php';
 <div class="page-header">
   <h1><i class="fa-solid fa-map-location-dot"></i> <?= $farm ? htmlspecialchars($farm['name']) : t('camps') ?></h1>
   <?php if (isSuperAdmin()): ?>
-  <button class="btn btn-primary btn-sm" id="btn-add-camp"><i class="fa-solid fa-plus"></i> Add Camp</button>
+  <button class="btn btn-primary btn-sm" id="btn-add-camp"><i class="fa-solid fa-plus"></i> <?= t('add_camp') ?></button>
   <?php endif; ?>
 </div>
 
@@ -62,7 +62,7 @@ require_once __DIR__ . '/templates/header.php';
       </div>
 
       <div class="form-group">
-        <label class="form-label"><?= t('camp') ?> Name <span class="required">*</span></label>
+        <label class="form-label"><?= t('camp') ?> <?= t('name') ?> <span class="required">*</span></label>
         <input type="text" id="camp-name" class="form-control" placeholder="e.g. Camp A, North Paddock">
       </div>
 
@@ -73,7 +73,7 @@ require_once __DIR__ . '/templates/header.php';
 
       <!-- Assign herd to this camp -->
       <div class="form-group">
-        <label class="form-label">Assign Herd <span class="text-muted" style="font-weight:400;text-transform:none">(optional)</span></label>
+        <label class="form-label"><?= t('assign_herd') ?></label>
         <select id="camp-herd" class="form-control">
           <option value="">– No herd –</option>
         </select>
@@ -95,6 +95,13 @@ require_once __DIR__ . '/templates/header.php';
 <script>
 const FARM_ID = <?= $farmId ?>;
 const isAdmin = <?= isSuperAdmin() ? 'true' : 'false' ?>;
+const T = <?= json_encode([
+  'no_camps_yet'     => t('no_camps_yet'),
+  'add_camp'         => t('add_camp'),
+  'edit'             => t('edit'),
+  'delete'           => t('delete'),
+  'no_herd_assigned' => t('no_herd_assigned'),
+]) ?>;
 
 // Pre-load all herds for the assign dropdown
 let allHerds = [];
@@ -118,9 +125,9 @@ function loadCamps() {
     if (!res.data?.length) {
       el.innerHTML = `<div class="empty-state">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-        <h3>No camps yet</h3>
-        <p>Add a camp to assign herds and track grazing.</p>
-        ${isAdmin ? `<button class="btn btn-primary" onclick="document.getElementById('btn-add-camp').click()">Add Camp</button>` : ''}
+        <h3>${T.no_camps_yet}</h3>
+        <p>${T.add_camp}</p>
+        ${isAdmin ? `<button class="btn btn-primary" onclick="document.getElementById('btn-add-camp').click()">${T.add_camp}</button>` : ''}
       </div>`;
       return;
     }
@@ -139,13 +146,13 @@ function loadCamps() {
               ${c.size_ha ? c.size_ha + ' ha · ' : ''}
               ${herd
                 ? `<span style="color:var(--green);font-weight:600">${escHtml(herd.name)}</span>`
-                : '<span style="color:var(--text-muted)">No herd assigned</span>'}
+                : `<span style="color:var(--text-muted)">${T.no_herd_assigned}</span>`}
             </div>
           </div>
           ${isAdmin ? `
           <div style="display:flex;gap:6px;flex-shrink:0" onclick="event.preventDefault()">
-            <button class="btn btn-sm btn-secondary" onclick="editCamp(event,${JSON.stringify(c).replace(/"/g,'&quot;')})">Edit</button>
-            <button class="btn btn-sm btn-danger"    onclick="deleteCamp(event,${c.id},'${escHtml(c.name)}')">Delete</button>
+            <button class="btn btn-sm btn-secondary" onclick="editCamp(event,${JSON.stringify(c).replace(/"/g,'&quot;')})">${T.edit}</button>
+            <button class="btn btn-sm btn-danger"    onclick="deleteCamp(event,${c.id},'${escHtml(c.name)}')">${T.delete}</button>
           </div>` : ''}
           <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
         </a>

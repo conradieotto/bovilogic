@@ -31,7 +31,7 @@ require_once __DIR__ . '/templates/header.php';
 <div class="page-header">
   <h1><i class="fa-solid fa-cow"></i> <?= $herdName ? htmlspecialchars($herdName) : ($farmName ? htmlspecialchars($farmName) . ' – ' . t('animals') : t('animals')) ?></h1>
   <?php if (isSuperAdmin()): ?>
-  <a href="/animal-form.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> Add Animal</a>
+  <a href="/animal-form.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> <?= t('add_animal') ?></a>
   <?php endif; ?>
 </div>
 
@@ -43,7 +43,7 @@ require_once __DIR__ . '/templates/header.php';
 
 <!-- Status Filters -->
 <div class="filter-row">
-  <button class="filter-chip active" data-status="">All</button>
+  <button class="filter-chip active" data-status=""><?= t('all') ?></button>
   <button class="filter-chip" data-status="active"><?= t('as_active') ?></button>
   <button class="filter-chip" data-status="sold"><?= t('as_sold') ?></button>
   <button class="filter-chip" data-status="dead"><?= t('as_dead') ?></button>
@@ -51,7 +51,7 @@ require_once __DIR__ . '/templates/header.php';
 
 <!-- Category Filters -->
 <div class="filter-row" id="cat-filters">
-  <button class="filter-chip active" data-cat="">All Categories</button>
+  <button class="filter-chip active" data-cat=""><?= t('all_categories') ?></button>
   <button class="filter-chip" data-cat="breeding_bull"><?= t('cat_breeding_bull') ?></button>
   <button class="filter-chip" data-cat="breeding_cow"><?= t('cat_breeding_cow') ?></button>
   <button class="filter-chip" data-cat="c_grade_cow"><?= t('cat_c_grade_cow') ?></button>

@@ -15,7 +15,7 @@ require_once __DIR__ . '/templates/header.php';
 <div class="page-header">
   <h1><i class="fa-solid fa-tractor"></i> <?= t('farms') ?></h1>
   <?php if (isSuperAdmin()): ?>
-  <button class="btn btn-primary btn-sm" id="btn-add-farm"><i class="fa-solid fa-plus"></i> Add Farm</button>
+  <button class="btn btn-primary btn-sm" id="btn-add-farm"><i class="fa-solid fa-plus"></i> <?= t('add_farm') ?></button>
   <?php endif; ?>
 </div>
 
@@ -39,7 +39,7 @@ require_once __DIR__ . '/templates/header.php';
           <input type="text" id="farm-location" name="location" class="form-control">
         </div>
         <div class="form-group">
-          <label class="form-label" for="farm-size">Size (ha)</label>
+          <label class="form-label" for="farm-size"><?= t('size_ha') ?></label>
           <input type="number" id="farm-size" name="size_ha" class="form-control" step="0.1" min="0" placeholder="e.g. 500">
         </div>
         <div class="form-group">
@@ -58,6 +58,13 @@ require_once __DIR__ . '/templates/header.php';
 
 <script>
 const isAdmin = <?= isSuperAdmin() ? 'true' : 'false' ?>;
+const T = <?= json_encode([
+  'no_farms_yet'  => t('no_farms_yet'),
+  'add_farm'      => t('add_farm'),
+  'edit'          => t('edit'),
+  'delete'        => t('delete'),
+  'animals_count' => t('animals_count'),
+]) ?>;
 let farmsCache = [];
 
 function renderFarms(farms) {
@@ -66,20 +73,20 @@ function renderFarms(farms) {
   if (!farms.length) {
     el.innerHTML = `<div class="empty-state">
       <svg viewBox="0 0 24 24"><path d="M19 9.3V4h-3v2.6L12 3 2 12h3v8h5v-5h4v5h5v-8h3l-3-2.7z"/></svg>
-      <h3>No farms yet</h3>
-      <p>Add your first farm to get started.</p>
+      <h3>${T.no_farms_yet}</h3>
+      <p>${T.add_farm}</p>
     </div>`;
     return;
   }
   el.innerHTML = '<div class="list-card">' + farms.map(f => {
     const adminBtns = isAdmin
       ? `<div style="display:flex;gap:6px">
-           <button class="btn btn-sm btn-secondary" onclick="editFarm(event,${f.id})">Edit</button>
-           <button class="btn btn-sm btn-danger" onclick="deleteFarm(event,${f.id})">Delete</button>
+           <button class="btn btn-sm btn-secondary" onclick="editFarm(event,${f.id})">${T.edit}</button>
+           <button class="btn btn-sm btn-danger" onclick="deleteFarm(event,${f.id})">${T.delete}</button>
          </div>`
       : '';
     const ha  = f.size_ha ? (parseFloat(f.size_ha) + ' ha') : '– ha';
-    const sub = [f.location, ha, (f.animal_count ?? 0) + ' animals']
+    const sub = [f.location, ha, (f.animal_count ?? 0) + ' ' + T.animals_count]
       .filter(Boolean).join(' · ');
     return `
     <a href="/camps.php?farm=${f.id}" class="list-item">

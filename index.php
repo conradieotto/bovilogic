@@ -150,15 +150,15 @@ require_once __DIR__ . '/templates/header.php';
 <!-- Page Header -->
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-gauge-high"></i> Dashboard</h1>
+  <h1><i class="fa-solid fa-gauge-high"></i> <?= t('dashboard') ?></h1>
   <span id="header-date" class="text-muted text-sm"></span>
 </div>
 
 <!-- Hero strip -->
 <div class="dash-hero">
-  <div class="dash-hero-label">Welcome back</div>
-  <div class="dash-hero-title" id="hero-total">– Animals</div>
-  <div class="dash-hero-sub" id="hero-sub">Loading farm data…</div>
+  <div class="dash-hero-label"><?= t('welcome_back') ?></div>
+  <div class="dash-hero-title" id="hero-total">–</div>
+  <div class="dash-hero-sub" id="hero-sub"><?= t('loading_data') ?></div>
 </div>
 
 <!-- Search -->
@@ -204,6 +204,14 @@ require_once __DIR__ . '/templates/header.php';
 
 
 <script>
+const T = <?= json_encode([
+  'animals'          => t('animals'),
+  'calving_soon'     => t('calving_soon'),
+  'for_sale_label'   => t('for_sale_label'),
+  'vaccines_overdue' => t('vaccines_overdue'),
+  'no_alerts'        => t('no_alerts'),
+]) ?>;
+
 document.getElementById('global-search').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && this.value.trim()) {
     window.location = '/animals.php?q=' + encodeURIComponent(this.value.trim());
@@ -222,12 +230,12 @@ fetch('/api/dashboard.php')
     document.getElementById('stat-sale').textContent     = d.for_sale ?? 0;
 
     // Hero strip
-    document.getElementById('hero-total').textContent = (d.total_animals ?? 0) + ' Animals';
+    document.getElementById('hero-total').textContent = (d.total_animals ?? 0) + ' ' + T.animals;
     const parts = [];
-    if (d.upcoming_calvings) parts.push(d.upcoming_calvings + ' calving soon');
-    if (d.for_sale)          parts.push(d.for_sale + ' for sale');
-    if (d.vaccines_overdue)  parts.push(d.vaccines_overdue + ' vaccines overdue');
-    document.getElementById('hero-sub').textContent = parts.length ? parts.join(' · ') : 'All good — no alerts';
+    if (d.upcoming_calvings) parts.push(d.upcoming_calvings + ' ' + T.calving_soon);
+    if (d.for_sale)          parts.push(d.for_sale + ' ' + T.for_sale_label);
+    if (d.vaccines_overdue)  parts.push(d.vaccines_overdue + ' ' + T.vaccines_overdue.toLowerCase());
+    document.getElementById('hero-sub').textContent = parts.length ? parts.join(' · ') : T.no_alerts;
 
     const alertCount = (d.vaccines_overdue ?? 0) + (d.vaccines_due ?? 0)
                      + (d.poor_calving_count ?? 0) + (d.bad_pregnancy_count ?? 0) + (d.weight_loss_count ?? 0);

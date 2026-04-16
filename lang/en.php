@@ -59,6 +59,8 @@ return [
     'total_animals'    => 'Total Animals',
     'farm_totals'      => 'Farm Totals',
     'vaccines_due'     => 'Vaccinations Due',
+    'vaccines_overdue' => 'Vaccines Overdue',
+    'born_label'       => 'Born',
     'upcoming_calvings'=> 'Upcoming Calvings',
     'animals_for_sale' => 'For Sale',
 
@@ -74,6 +76,9 @@ return [
     'camps'            => 'Camps',
     'camp'             => 'Camp',
     'add_camp'         => 'Add Camp',
+    'no_camps_yet'     => 'No camps yet',
+    'no_herd_assigned' => 'No herd assigned',
+    'assign_herd'      => 'Assign Herd',
     'edit_camp'        => 'Edit Camp',
     'size_ha'          => 'Size (ha)',
 
@@ -81,6 +86,8 @@ return [
     'herds'            => 'Herds',
     'herd'             => 'Herd',
     'add_herd'         => 'Add Herd',
+    'no_herds_yet'     => 'No herds',
+    'pregnancy_rate'   => 'Pregnancy rate',
     'edit_herd'        => 'Edit Herd',
     'herd_name'        => 'Herd Name',
     'breeding_bull'    => 'Breeding Bull',
@@ -131,6 +138,7 @@ return [
     // Weights
     'weights'          => 'Weights',
     'add_weight'       => 'Add Weight',
+    'edit_weight'      => 'Edit Weight',
     'weight_kg'        => 'Weight (kg)',
     'weight_gain'      => 'Weight Gain',
     'adg'              => 'Avg Daily Gain',
@@ -209,6 +217,9 @@ return [
     'force_sync'       => 'Force Sync',
     'last_sync'        => 'Last Sync',
     'offline_mode'     => 'Offline Mode',
+    'calving_soon'     => 'calving soon',
+    'for_sale_label'   => 'for sale',
+    'no_alerts'        => 'All good — no alerts',
 
     // Settings
     'settings'         => 'Settings',
@@ -223,4 +234,86 @@ return [
     'from_camp'        => 'From Camp',
     'to_camp'          => 'To Camp',
     'move_date'        => 'Move Date',
+
+    // General UI
+    'all'              => 'All',
+    'all_categories'   => 'All Categories',
+    'total'            => 'Total',
+    'welcome_back'     => 'Welcome back',
+    'loading_data'     => 'Loading farm data…',
+    'offline_msg'      => 'Offline – changes will sync when connected',
+    'no_data'          => 'No data.',
+    'none'             => 'None.',
+    'excellent'        => 'Excellent',
+    'good'             => 'Good',
+    'poor_label'       => 'Poor',
+    'days'             => 'days',
+    'day'              => 'day',
+    'head'             => 'head',
+    'add'              => 'Add',
+    'other'            => 'Other',
+    'management'       => 'Management',
+    'manage_users_sub' => 'Manage user accounts',
+    'app_preferences'  => 'App preferences',
+    'data_section'     => 'Data',
+    'activity_history' => 'Full activity history',
+    'check_sync'       => 'Check sync status',
+    'export_import'    => 'Export / Import data',
+    'load_more'        => 'Load More',
+    'no_activity'      => 'No activity yet.',
+
+    // Animal detail labels
+    'expected_calving' => 'Expected Calving',
+    'last_calving_date'=> 'Last Calving',
+    'calves'           => 'Calves',
+    'calf_single'      => 'calf',
+    'avg_calving_interval_label' => 'Avg Calving Interval',
+
+    // Tabs
+    'tab_vaccines'     => 'Vaccines',
+
+    // No-data messages
+    'no_weights'       => 'No weights recorded.',
+    'no_vaccinations_rec' => 'No vaccinations recorded.',
+    'no_treatments_rec'=> 'No treatments recorded.',
+    'no_events_rec'    => 'No events recorded.',
+    'no_calving_rec'   => 'No calving records.',
+    'pending_label'    => 'Pending',
+    'history_label'    => 'History',
+    'mark_done'        => 'Done',
+
+    // Event types
+    'ev_branding'      => 'Branding',
+    'ev_dehorning'     => 'Dehorning',
+    'ev_castration'    => 'Castration',
+    'ev_weaning'       => 'Weaning',
+    'ev_other'         => 'Other',
+
+    // Alerts page
+    'losing_weight'         => 'Losing Weight',
+    'poor_calving_interval' => 'Poor Calving Interval',
+    'bad_pregnancy_rate'    => 'Bad Pregnancy Rate',
+    'due_this_week'         => 'Due This Week',
+    'no_weight_loss'        => 'No animals losing weight.',
+    'no_animals_flagged'    => 'No animals flagged.',
+    'no_herds_flagged'      => 'No herds flagged.',
+    'no_calvings_due'       => 'No calvings due within 30 days.',
+    'avg_interval_label'    => 'Avg interval',
+    'last_weighed'          => 'Last weighed',
+    'due_now'               => 'Due now',
+    'due_in'                => 'Due in',
+    'tested_label'          => 'Tested',
+
+    // Summary page
+    'vaccines_due_7d'  => 'Vaccines Due (7d)',
+    'farm_summary'     => 'Farm Summary',
+    'by_category'      => 'By Category',
+    'sold_in'          => 'Sold in',
+    'born_in'          => 'Born in',
+    'purchased_in'     => 'Purchased in',
+    'deaths_in'        => 'Deaths in',
+    'no_breeding_date' => 'No breeding date set',
+    'expected_label'   => 'Expected',
+    'no_farms_yet'     => 'No farms yet.',
+    'animals_count'    => 'animals',
 ];

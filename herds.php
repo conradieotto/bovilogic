@@ -16,7 +16,7 @@ require_once __DIR__ . '/templates/header.php';
 <div class="page-header">
   <h1><i class="fa-solid fa-people-group"></i> <?= t('herds') ?></h1>
   <?php if (isSuperAdmin()): ?>
-  <button class="btn btn-primary btn-sm" id="btn-add-herd"><i class="fa-solid fa-plus"></i> Add Herd</button>
+  <button class="btn btn-primary btn-sm" id="btn-add-herd"><i class="fa-solid fa-plus"></i> <?= t('add_herd') ?></button>
   <?php endif; ?>
 </div>
 
@@ -68,6 +68,20 @@ require_once __DIR__ . '/templates/header.php';
 const isAdmin   = <?= isSuperAdmin() ? 'true' : 'false' ?>;
 const filterFarm = <?= $farmId ?>;
 const COLORS = ['#2E7D32','#1565C0','#E65100','#6A1B9A','#AD1457','#00695C','#F9A825','#4E342E','#FFFFFF','#000000'];
+const T = <?= json_encode([
+  'no_herds_yet'    => t('no_herds_yet'),
+  'add_herd'        => t('add_herd'),
+  'edit'            => t('edit'),
+  'delete'          => t('delete'),
+  'animals_count'   => t('animals_count'),
+  'breeding_bull'   => t('breeding_bull'),
+  'breeding_start'  => t('breeding_start'),
+  'breeding_end'    => t('breeding_end'),
+  'pregnancy_rate'  => t('pregnancy_rate'),
+  'excellent'       => t('excellent'),
+  'good'            => t('good'),
+  'poor_label'      => t('poor_label'),
+]) ?>;
 
 function renderColorPicker(selected) {
   const cp = document.getElementById('color-picker');
@@ -89,7 +103,7 @@ function loadHerds() {
     if (!res.success || !res.data.length) {
       el.innerHTML = `<div class="empty-state">
         <svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="15" cy="8" r="3"/><path d="M1 18v-1c0-2.2 3.6-4 8-4s8 1.8 8 4v1H1zm14.3-4c2.5.4 4.7 1.7 4.7 3v1h-4v-1c0-1.1-.7-2.1-1.8-2.9l1.1-.1z"/></svg>
-        <h3>No herds</h3><p>Add a herd to get started.</p></div>`;
+        <h3>${T.no_herds_yet}</h3><p>${T.add_herd}</p></div>`;
       return;
     }
     el.innerHTML = '<div class="list-card">' + res.data.map(h => `
@@ -99,15 +113,15 @@ function loadHerds() {
         </div>
         <div class="item-body">
           <div class="item-title">${escHtml(h.name)}</div>
-          <div class="item-sub">${escHtml(h.farm_name||'')} ${h.camp_name ? '· '+escHtml(h.camp_name) : ''} · ${h.animal_count||0} animals${h.bulls&&h.bulls.length ? ' · Bulls: '+h.bulls.map(b=>escHtml(b.ear_tag)).join(', ') : ''}</div>
+          <div class="item-sub">${escHtml(h.farm_name||'')} ${h.camp_name ? '· '+escHtml(h.camp_name) : ''} · ${h.animal_count||0} ${T.animals_count}${h.bulls&&h.bulls.length ? ' · '+T.breeding_bull+': '+h.bulls.map(b=>escHtml(b.ear_tag)).join(', ') : ''}</div>
           ${(h.breeding_start || h.breeding_end) ? `<div class="item-sub" style="margin-top:2px">
-            ${h.breeding_start ? 'Start: '+h.breeding_start : ''} ${h.breeding_end ? '· End: '+h.breeding_end : ''}
+            ${h.breeding_start ? T.breeding_start+': '+h.breeding_start : ''} ${h.breeding_end ? '· '+T.breeding_end+': '+h.breeding_end : ''}
           </div>` : ''}
           ${h.pregnancy_rate != null ? `<div class="item-sub" style="margin-top:2px">
-            Pregnancy rate: <strong>${h.pregnancy_rate}%</strong>
+            ${T.pregnancy_rate}: <strong>${h.pregnancy_rate}%</strong>
             ${(()=>{
               const r = h.pregnancy_rate;
-              const label = r >= 86 ? 'Excellent' : r >= 75 ? 'Good' : 'Poor';
+              const label = r >= 86 ? T.excellent : r >= 75 ? T.good : T.poor_label;
               const bg    = r >= 86 ? '#e8f5e9'   : r >= 75 ? '#fff8e1' : '#ffebee';
               const color = r >= 86 ? '#2e7d32'   : r >= 75 ? '#f57f17' : '#c62828';
               return `<span style="display:inline-block;margin-left:6px;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:${bg};color:${color}">${label}</span>`;
@@ -118,8 +132,8 @@ function loadHerds() {
         <div class="item-end">
           ${isAdmin ? `
             <div style="display:flex;gap:6px">
-              <button class="btn btn-sm btn-secondary" onclick="editHerd(event,${JSON.stringify(h).replace(/"/g,'&quot;')})">Edit</button>
-              <button class="btn btn-sm btn-danger"    onclick="deleteHerd(event,${h.id},${JSON.stringify(h.name).replace(/"/g,'&quot;')})">Delete</button>
+              <button class="btn btn-sm btn-secondary" onclick="editHerd(event,${JSON.stringify(h).replace(/"/g,'&quot;')})">${T.edit}</button>
+              <button class="btn btn-sm btn-danger"    onclick="deleteHerd(event,${h.id},${JSON.stringify(h.name).replace(/"/g,'&quot;')})">${T.delete}</button>
             </div>` : ''}
         </div>
         <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>

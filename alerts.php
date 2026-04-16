@@ -17,26 +17,45 @@ require_once __DIR__ . '/templates/header.php';
   <h1><i class="fa-solid fa-bell"></i> <?= t('alerts') ?></h1>
 </div>
 
-<div class="section-header"><h2>Losing Weight</h2></div>
+<div class="section-header"><h2><?= t('losing_weight') ?></h2></div>
 <div id="weight-loss" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
-<div class="section-header"><h2>Poor Calving Interval</h2></div>
+<div class="section-header"><h2><?= t('poor_calving_interval') ?></h2></div>
 <div id="poor-calving" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
-<div class="section-header"><h2>Bad Pregnancy Rate</h2></div>
+<div class="section-header"><h2><?= t('bad_pregnancy_rate') ?></h2></div>
 <div id="bad-pregnancy" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
-<div class="section-header"><h2>Vaccines Overdue</h2></div>
+<div class="section-header"><h2><?= t('overdue') ?></h2></div>
 <div id="vacc-overdue" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
-<div class="section-header"><h2>Due This Week</h2></div>
+<div class="section-header"><h2><?= t('due_this_week') ?></h2></div>
 <div id="vacc-due" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
-<div class="section-header"><h2>Upcoming Calvings</h2></div>
+<div class="section-header"><h2><?= t('upcoming_calvings') ?></h2></div>
 <div id="calvings" class="list-card" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
 <script>
 var IS_ADMIN = <?= $isAdmin ? 'true' : 'false' ?>;
+const T = <?= json_encode([
+  'no_weight_loss'    => t('no_weight_loss'),
+  'no_animals_flagged'=> t('no_animals_flagged'),
+  'no_herds_flagged'  => t('no_herds_flagged'),
+  'no_calvings_due'   => t('no_calvings_due'),
+  'last_weighed'      => t('last_weighed'),
+  'avg_interval_label'=> t('avg_interval_label'),
+  'tested_label'      => t('tested_label'),
+  'due_date'          => t('due_date'),
+  'overdue'           => t('overdue'),
+  'due_soon'          => t('due_soon'),
+  'poor_label'        => t('poor_label'),
+  'bs_pregnant'       => t('bs_pregnant'),
+  'due_now'           => t('due_now'),
+  'due_in'            => t('due_in'),
+  'days'              => t('days'),
+  'day'               => t('day'),
+  'mark_done'         => t('mark_done'),
+]) ?>;
 
 function markDone(id, product) {
   if (!confirm('Mark "' + product + '" as done today?')) return;
@@ -57,7 +76,7 @@ function markDone(id, product) {
     if (res.success) {
       var row = document.getElementById('vacc-row-' + id);
       if (row) row.remove();
-      showToast('Vaccination marked as done');
+      showToast(T.mark_done);
     } else {
       alert(res.message || 'Error');
     }
@@ -66,7 +85,7 @@ function markDone(id, product) {
 }
 
 function renderVacc(items, el) {
-  if (!items.length) { el.innerHTML = '<div class="p-16 text-muted text-sm">None.</div>'; return; }
+  if (!items.length) { el.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">' + T.no_animals_flagged + '</div>'; return; }
   var today = new Date();
   var html = '';
   for (var i = 0; i < items.length; i++) {
@@ -74,16 +93,16 @@ function renderVacc(items, el) {
     var overdue = new Date(v.due_date) < today;
     var label = v.animal_tag || (v.herd_id ? 'Herd #' + v.herd_id : 'Unknown');
     var doneBtn = IS_ADMIN
-      ? '<button onclick="markDone(' + v.id + ', \'' + esc(v.product) + '\')" class="btn btn-primary" style="padding:6px 10px;font-size:12px;white-space:nowrap">\u2713 Done</button>'
+      ? '<button onclick="markDone(' + v.id + ', \'' + esc(v.product) + '\')" class="btn btn-primary" style="padding:6px 10px;font-size:12px;white-space:nowrap">\u2713 ' + T.mark_done + '</button>'
       : '';
     html += '<div class="list-item" id="vacc-row-' + v.id + '">'
       + '<span id="due-' + v.id + '" data-due="' + v.due_date + '" style="display:none"></span>'
       + '<div class="item-body" style="cursor:pointer" onclick="if(' + (v.animal_id||0) + ')location.href=\'/animal-detail.php?id=' + (v.animal_id||0) + '\'">'
       + '<div class="item-title">' + esc(v.product) + ' \u2014 ' + esc(label) + '</div>'
-      + '<div class="item-sub">Due: ' + fmtDate(v.due_date) + (v.dosage ? ' \u00b7 ' + esc(v.dosage) : '') + '</div>'
+      + '<div class="item-sub">' + T.due_date + ': ' + fmtDate(v.due_date) + (v.dosage ? ' \u00b7 ' + esc(v.dosage) : '') + '</div>'
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:8px">'
-      + '<span class="badge ' + (overdue ? 'badge-red' : 'badge-amber') + '">' + (overdue ? 'Overdue' : 'Due soon') + '</span>'
+      + '<span class="badge ' + (overdue ? 'badge-red' : 'badge-amber') + '">' + (overdue ? T.overdue : T.due_soon) + '</span>'
       + doneBtn
       + '</div>'
       + '</div>';
@@ -100,7 +119,7 @@ fetch('/api/alerts.php')
     var wlEl = document.getElementById('weight-loss');
     var wl = d.weight_loss || [];
     if (!wl.length) {
-      wlEl.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">No animals losing weight.</div>';
+      wlEl.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">' + T.no_weight_loss + '</div>';
     } else {
       var html = '';
       for (var i = 0; i < wl.length; i++) {
@@ -109,7 +128,7 @@ fetch('/api/alerts.php')
         html += '<a href="/animal-detail.php?id=' + a.id + '" class="list-item">'
           + '<div class="item-body">'
           + '<div class="item-title">' + esc(a.ear_tag) + '</div>'
-          + '<div class="item-sub">Last weighed: ' + fmtDate(a.latest_date) + ' &middot; ' + a.latest_kg + ' kg</div>'
+          + '<div class="item-sub">' + T.last_weighed + ': ' + fmtDate(a.latest_date) + ' &middot; ' + a.latest_kg + ' kg</div>'
           + '</div>'
           + '<span class="badge badge-red">-' + lost + ' kg</span>'
           + '</a>';
@@ -121,7 +140,7 @@ fetch('/api/alerts.php')
     var pcEl = document.getElementById('poor-calving');
     var pc = d.poor_calving || [];
     if (!pc.length) {
-      pcEl.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">No animals flagged.</div>';
+      pcEl.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">' + T.no_animals_flagged + '</div>';
     } else {
       var html2 = '';
       for (var j = 0; j < pc.length; j++) {
@@ -129,9 +148,9 @@ fetch('/api/alerts.php')
         html2 += '<a href="/animal-detail.php?id=' + c.id + '" class="list-item">'
           + '<div class="item-body">'
           + '<div class="item-title">' + esc(c.ear_tag) + '</div>'
-          + '<div class="item-sub">' + esc(c.herd_name || '') + ' &middot; Avg interval: ' + Math.round(c.avg_calf_interval) + ' days</div>'
+          + '<div class="item-sub">' + esc(c.herd_name || '') + ' &middot; ' + T.avg_interval_label + ': ' + Math.round(c.avg_calf_interval) + ' ' + T.days + '</div>'
           + '</div>'
-          + '<span class="badge badge-red">Poor</span>'
+          + '<span class="badge badge-red">' + T.poor_label + '</span>'
           + '</a>';
       }
       pcEl.innerHTML = html2;
@@ -141,7 +160,7 @@ fetch('/api/alerts.php')
     var bpEl = document.getElementById('bad-pregnancy');
     var bp = d.bad_pregnancy || [];
     if (!bp.length) {
-      bpEl.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">No herds flagged.</div>';
+      bpEl.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">' + T.no_herds_flagged + '</div>';
     } else {
       var html3 = '';
       for (var k = 0; k < bp.length; k++) {
@@ -149,7 +168,7 @@ fetch('/api/alerts.php')
         html3 += '<a href="/herds.php" class="list-item">'
           + '<div class="item-body">'
           + '<div class="item-title">' + esc(h.name) + '</div>'
-          + '<div class="item-sub">' + esc(h.farm_name || '') + (h.last_pregnancy_test ? ' &middot; Tested: ' + fmtDate(h.last_pregnancy_test) : '') + '</div>'
+          + '<div class="item-sub">' + esc(h.farm_name || '') + (h.last_pregnancy_test ? ' &middot; ' + T.tested_label + ': ' + fmtDate(h.last_pregnancy_test) : '') + '</div>'
           + '</div>'
           + '<span class="badge badge-red">' + h.pregnancy_rate + '%</span>'
           + '</a>';
@@ -179,7 +198,7 @@ fetch('/api/animals.php?status=active')
       return due <= in30;
     });
     var el = document.getElementById('calvings');
-    if (!list.length) { el.innerHTML = '<div class="p-16 text-muted text-sm">No calvings due within 30 days.</div>'; return; }
+    if (!list.length) { el.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">' + T.no_calvings_due + '</div>'; return; }
     var html = '';
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
@@ -188,14 +207,14 @@ fetch('/api/animals.php?status=active')
         var due = new Date(a.breeding_date + 'T00:00:00');
         due.setDate(due.getDate() + 285);
         var days = Math.ceil((due - today) / 86400000);
-        dueText = days <= 0 ? 'Due now' : 'Due in ' + days + ' day' + (days !== 1 ? 's' : '');
+        dueText = days <= 0 ? T.due_now : T.due_in + ' ' + days + ' ' + (days !== 1 ? T.days : T.day);
       }
       html += '<a href="/animal-detail.php?id=' + a.id + '" class="list-item">'
         + '<div class="item-body">'
         + '<div class="item-title">' + esc(a.ear_tag) + '</div>'
         + '<div class="item-sub">' + esc(a.herd_name||'') + (a.breed?' \u00b7 '+esc(a.breed):'') + (dueText?' \u00b7 '+dueText:'') + '</div>'
         + '</div>'
-        + '<span class="badge badge-blue">Pregnant</span>'
+        + '<span class="badge badge-blue">' + T.bs_pregnant + '</span>'
         + '</a>';
     }
     el.innerHTML = html;

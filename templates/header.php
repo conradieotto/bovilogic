@@ -19,7 +19,7 @@
 <body class="<?= $bodyClass ?? '' ?>">
 
 <div id="offline-banner" class="offline-banner">
-  <i class="fa-solid fa-wifi-slash"></i> Offline – changes will sync when connected
+  <i class="fa-solid fa-wifi-slash"></i> <?= t('offline_msg') ?>
 </div>
 
 <div class="app-shell">
