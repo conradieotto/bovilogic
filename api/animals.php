@@ -33,11 +33,12 @@ switch ($method) {
             $a ? jsonSuccess($a) : jsonNotFound();
         }
         // List with filters
-        $q      = trim($_GET['q']      ?? '');
-        $status = trim($_GET['status'] ?? '');
-        $cat    = trim($_GET['cat']    ?? $_GET['category'] ?? '');
-        $herd   = (int)($_GET['herd_id'] ?? 0);
-        $farm   = (int)($_GET['farm_id'] ?? 0);
+        $q       = trim($_GET['q']      ?? '');
+        $status  = trim($_GET['status'] ?? '');
+        $cat     = trim($_GET['cat']    ?? $_GET['category'] ?? '');
+        $herd    = (int)($_GET['herd_id']  ?? 0);
+        $farm    = (int)($_GET['farm_id']  ?? 0);
+        $forSale = !empty($_GET['for_sale']);
 
         $where = ['1=1'];
         $params = [];
@@ -45,8 +46,13 @@ switch ($method) {
             $where[] = '(a.ear_tag LIKE ? OR a.rfid LIKE ?)';
             $params[] = "%$q%"; $params[] = "%$q%";
         }
-        if ($status) { $where[] = 'a.animal_status = ?'; $params[] = $status; }
-        if ($cat)    { $where[] = 'a.category = ?';      $params[] = $cat; }
+        if ($forSale) {
+            $where[] = "a.animal_status = 'active'";
+            $where[] = "a.category IN ('weaner','c_grade_cow')";
+        } else {
+            if ($status) { $where[] = 'a.animal_status = ?'; $params[] = $status; }
+            if ($cat)    { $where[] = 'a.category = ?';      $params[] = $cat; }
+        }
         if ($herd)   { $where[] = 'a.herd_id = ?';       $params[] = $herd; }
         if ($farm)   { $where[] = 'a.farm_id = ?';       $params[] = $farm; }
 

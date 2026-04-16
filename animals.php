@@ -11,6 +11,7 @@ $pageTitle = 'nav_animals';
 $searchQ   = htmlspecialchars($_GET['q'] ?? '');
 $farmId    = (int)($_GET['farm_id'] ?? 0);
 $herdId    = (int)($_GET['herd_id'] ?? 0);
+$preset    = $_GET['preset'] ?? '';
 $farmName  = '';
 $herdName  = '';
 if ($farmId || $herdId) {
@@ -72,8 +73,10 @@ require_once __DIR__ . '/templates/header.php';
 <script>
 const FARM_ID    = <?= $farmId ?>;
 const HERD_ID    = <?= $herdId ?>;
+const PRESET     = <?= json_encode($preset) ?>;
 let activeStatus = '';
 let activeCat    = '';
+let forSaleMode  = PRESET === 'for_sale';
 let searchTimer  = null;
 
 const T = <?= json_encode(['edit' => t('edit'), 'delete' => t('delete')]) ?>;
@@ -100,8 +103,11 @@ function loadAnimals() {
   if (FARM_ID)      url += `farm_id=${FARM_ID}&`;
   if (HERD_ID)      url += `herd_id=${HERD_ID}&`;
   if (q)            url += `q=${encodeURIComponent(q)}&`;
-  if (activeStatus) url += `status=${activeStatus}&`;
-  if (activeCat)    url += `category=${activeCat}&`;
+  if (forSaleMode)  url += `for_sale=1&`;
+  else {
+    if (activeStatus) url += `status=${activeStatus}&`;
+    if (activeCat)    url += `category=${activeCat}&`;
+  }
 
   document.getElementById('animals-list').innerHTML = '<div class="page-loader"><div class="spinner"></div></div>';
 
@@ -150,6 +156,7 @@ function renderAnimals(animals) {
 // Filter chips
 document.querySelectorAll('[data-status]').forEach(btn => {
   btn.addEventListener('click', () => {
+    forSaleMode = false;
     document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeStatus = btn.dataset.status;
@@ -158,12 +165,18 @@ document.querySelectorAll('[data-status]').forEach(btn => {
 });
 document.querySelectorAll('[data-cat]').forEach(btn => {
   btn.addEventListener('click', () => {
+    forSaleMode = false;
     document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeCat = btn.dataset.cat;
     loadAnimals();
   });
 });
+
+// If for-sale preset, deactivate all "All" chips so it's clear a filter is active
+if (forSaleMode) {
+  document.querySelectorAll('[data-status], [data-cat]').forEach(b => b.classList.remove('active'));
+}
 
 // Search with debounce
 document.getElementById('animal-search').addEventListener('input', () => {

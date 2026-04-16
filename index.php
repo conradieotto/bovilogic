@@ -199,7 +199,7 @@ require_once __DIR__ . '/templates/header.php';
   <a href="/animals.php" class="stat-card stat-card-link"><span class="stat-val" id="stat-total">–</span><span class="stat-label"><?= t('total_animals') ?></span></a>
   <a href="/alerts.php"  class="stat-card stat-card-link alert"><span class="stat-val" id="stat-vaccines">–</span><span class="stat-label"><?= t('vaccines_due') ?></span></a>
   <a href="/summary.php" class="stat-card stat-card-link"><span class="stat-val" id="stat-calvings">–</span><span class="stat-label"><?= t('upcoming_calvings') ?></span></a>
-  <a href="/animals.php" class="stat-card stat-card-link"><span class="stat-val" id="stat-sale">–</span><span class="stat-label"><?= t('animals_for_sale') ?></span></a>
+  <a href="/animals.php?preset=for_sale" class="stat-card stat-card-link"><span class="stat-val" id="stat-sale">–</span><span class="stat-label"><?= t('animals_for_sale') ?></span></a>
 </div>
 
 
