@@ -176,9 +176,18 @@ function loadMonthly() {
 
       const newborns = d.newborns || [];
       if (newborns.length) {
+        const bornId = 'born-' + month.replace('-','');
         html += `
-        <div class="section-header"><h2>${T.born_in} ${monthLabel}</h2></div>
-        <div class="list-card list-card-inset" style="margin:0 16px 16px">
+        <div class="section-header" style="cursor:pointer;user-select:none" onclick="toggleMonthSection('${bornId}',this)">
+          <h2 style="display:flex;align-items:center;justify-content:space-between;width:100%">
+            <span>${T.born_in} ${monthLabel}</span>
+            <span style="display:flex;align-items:center;gap:8px">
+              <span style="background:var(--blue);color:#fff;font-size:13px;font-weight:700;padding:2px 12px;border-radius:20px">${newborns.length}</span>
+              <svg class="toggle-chev" viewBox="0 0 24 24" width="18" height="18" style="fill:currentColor;transition:transform 0.2s;flex-shrink:0"><path d="M16.59 8.59L12 13.17 7.41 8.59 6 10l6 6 6-6z"/></svg>
+            </span>
+          </h2>
+        </div>
+        <div id="${bornId}" class="list-card list-card-inset" style="margin:0 16px 16px;display:none">
           ${newborns.map(a=>`
             <a href="/animal-detail.php?id=${a.id}" class="list-item">
               <div class="item-body">
@@ -235,6 +244,14 @@ function loadMonthly() {
 }
 
 function escHtml(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+
+function toggleMonthSection(id, btn) {
+  const list = document.getElementById(id);
+  const isHidden = list.style.display === 'none';
+  list.style.display = isHidden ? '' : 'none';
+  const chev = btn.querySelector('.toggle-chev');
+  if (chev) chev.style.transform = isHidden ? 'rotate(180deg)' : '';
+}
 </script>
 
 <?php require_once __DIR__ . '/templates/footer.php'; ?>
