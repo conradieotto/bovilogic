@@ -32,8 +32,9 @@ switch ($method) {
         if ($overdue)  { $where[] = 'completed = 0 AND due_date < CURDATE()'; }
         if ($dueSoon)  { $where[] = 'completed = 0 AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)'; }
         $rows = DB::rows(
-            'SELECT v.*, a.ear_tag AS animal_tag FROM vaccinations v
+            'SELECT v.*, a.ear_tag AS animal_tag, h.name AS herd_name FROM vaccinations v
              LEFT JOIN animals a ON a.id = v.animal_id
+             LEFT JOIN herds h ON h.id = v.herd_id
              WHERE ' . implode(' AND ', $where) . ' ORDER BY v.due_date', $params);
         jsonSuccess($rows);
 

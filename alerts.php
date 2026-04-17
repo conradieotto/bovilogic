@@ -91,13 +91,14 @@ function renderVacc(items, el) {
   for (var i = 0; i < items.length; i++) {
     var v = items[i];
     var overdue = new Date(v.due_date) < today;
-    var label = v.animal_tag || (v.herd_id ? 'Herd #' + v.herd_id : 'Unknown');
+    var label = v.animal_tag || v.herd_name || 'Unknown';
+    var linkHref = v.animal_id ? '/animal-detail.php?id=' + v.animal_id : (v.herd_id ? '/herds.php' : '');
     var doneBtn = IS_ADMIN
       ? '<button onclick="markDone(' + v.id + ', \'' + esc(v.product) + '\')" class="btn btn-primary" style="padding:6px 10px;font-size:12px;white-space:nowrap">\u2713 ' + T.mark_done + '</button>'
       : '';
     html += '<div class="list-item" id="vacc-row-' + v.id + '">'
       + '<span id="due-' + v.id + '" data-due="' + v.due_date + '" style="display:none"></span>'
-      + '<div class="item-body" style="cursor:pointer" onclick="if(' + (v.animal_id||0) + ')location.href=\'/animal-detail.php?id=' + (v.animal_id||0) + '\'">'
+      + '<div class="item-body" style="cursor:pointer" onclick="if(\'' + linkHref + '\')location.href=\'' + linkHref + '\'">'
       + '<div class="item-title">' + esc(v.product) + ' \u2014 ' + esc(label) + '</div>'
       + '<div class="item-sub">' + T.due_date + ': ' + fmtDate(v.due_date) + (v.dosage ? ' \u00b7 ' + esc(v.dosage) : '') + '</div>'
       + '</div>'
