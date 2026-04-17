@@ -75,7 +75,7 @@ require_once __DIR__ . '/templates/header.php';
           </span>
         </label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <label class="perm-check"><input type="checkbox" id="perm-animals" checked> <i class="fa-solid fa-cow"></i> Animals &amp; Herds</label>
+          <label class="perm-check"><input type="checkbox" id="perm-animals" checked> <?= beef_cow_icon() ?> Animals &amp; Herds</label>
           <label class="perm-check"><input type="checkbox" id="perm-health"  checked> <i class="fa-solid fa-syringe"></i> Health Records</label>
           <label class="perm-check"><input type="checkbox" id="perm-weights" checked> <i class="fa-solid fa-weight-scale"></i> Weights</label>
           <label class="perm-check"><input type="checkbox" id="perm-calving" checked> <i class="fa-solid fa-baby"></i> Calving &amp; Breeding</label>

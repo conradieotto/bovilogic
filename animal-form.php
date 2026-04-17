@@ -28,7 +28,7 @@ require_once __DIR__ . '/templates/header.php';
 
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-cow"></i> <?= $id ? t('edit_animal') : ($isCalfMode ? t('add_calf') : t('add_animal')) ?></h1>
+  <h1><?= beef_cow_icon() ?> <?= $id ? t('edit_animal') : ($isCalfMode ? t('add_calf') : t('add_animal')) ?></h1>
   <a href="<?= $id ? "/animal-detail.php?id=$id" : (($_GET['from'] ?? '') === 'quick' ? '/quick-actions.php' : '/animals.php') ?>" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
 </div>
 

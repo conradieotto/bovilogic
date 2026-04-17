@@ -30,7 +30,7 @@ require_once __DIR__ . '/templates/header.php';
 
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-cow"></i> <?= $herdName ? htmlspecialchars($herdName) : ($farmName ? htmlspecialchars($farmName) . ' – ' . t('animals') : t('animals')) ?></h1>
+  <h1><?= beef_cow_icon() ?> <?= $herdName ? htmlspecialchars($herdName) : ($farmName ? htmlspecialchars($farmName) . ' – ' . t('animals') : t('animals')) ?></h1>
   <?php if (isSuperAdmin()): ?>
   <a href="/animal-form.php" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> <?= t('add_animal') ?></a>
   <?php endif; ?>

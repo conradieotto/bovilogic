@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../lib/helpers.php'; ?>
 <!DOCTYPE html>
 <html lang="<?= htmlspecialchars($_SESSION['user_language'] ?? 'en') ?>">
 <head>
@@ -30,7 +31,7 @@
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><i class="fa-solid fa-cow"></i></div>
+      <div class="sidebar-logo-icon"><?= beef_cow_icon() ?></div>
       <div class="sidebar-logo-text">Bovi<span>Logic</span></div>
     </div>
 
@@ -50,7 +51,7 @@
     </a>
     <?php if ($isAdmin || hasPermission('animals')): ?>
     <a href="/animals.php" class="bottom-nav-item <?= $currentPage === 'animals' ? 'active' : '' ?>">
-      <i class="fa-solid fa-cow"></i>
+      <?= beef_cow_icon() ?>
       <span><?= t('nav_animals') ?></span>
     </a>
     <?php endif; ?>

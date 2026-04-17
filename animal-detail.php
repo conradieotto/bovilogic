@@ -54,7 +54,7 @@ $statusClass = ['active' => 'badge-green', 'sold' => 'badge-amber', 'dead' => 'b
 
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-cow"></i> <?= htmlspecialchars($animal['ear_tag']) ?></h1>
+  <h1><?= beef_cow_icon() ?> <?= htmlspecialchars($animal['ear_tag']) ?></h1>
   <?php if (isSuperAdmin()): ?>
   <a href="/animal-form.php?id=<?= $id ?>" class="btn btn-secondary btn-sm"><i class="fa-solid fa-pen"></i> <?= t('edit') ?></a>
   <?php endif; ?>

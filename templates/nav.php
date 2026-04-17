@@ -22,7 +22,7 @@ $isAdmin     = $userRole === 'super_admin';
     <i class="fa-solid fa-people-group"></i> <span><?= t('nav_herds') ?></span>
   </a>
   <a href="/animals.php" class="nav-item <?= $currentPage === 'animals' ? 'active' : '' ?>" data-label="<?= t('nav_animals') ?>">
-    <i class="fa-solid fa-cow"></i> <span><?= t('nav_animals') ?></span>
+    <?= beef_cow_icon() ?> <span><?= t('nav_animals') ?></span>
   </a>
   <?php endif; ?>
 
