@@ -16,11 +16,61 @@ require_once __DIR__ . '/templates/header.php';
   <h1><i class="fa-solid fa-calendar-days"></i> <?= t('summary') ?></h1>
 </div>
 
-<div style="padding:12px 16px 0">
-  <input type="month" id="summary-month" class="form-control" style="max-width:200px"
-         value="<?= date('Y-m') ?>">
+<div class="tabs">
+  <button class="tab-btn active" data-tab="summary-tab"><?= t('summary') ?></button>
+  <button class="tab-btn" data-tab="reports-tab"><?= t('reports') ?></button>
 </div>
-<div id="summary-content"><div class="page-loader" style="min-height:300px"><div class="spinner"></div></div></div>
+
+<!-- Summary Tab -->
+<div id="summary-tab" class="tab-panel active">
+  <div style="padding:12px 16px 0">
+    <input type="month" id="summary-month" class="form-control" style="max-width:200px"
+           value="<?= date('Y-m') ?>">
+  </div>
+  <div id="summary-content"><div class="page-loader" style="min-height:300px"><div class="spinner"></div></div></div>
+</div>
+
+<!-- Reports Tab -->
+<div id="reports-tab" class="tab-panel">
+  <div class="tabs" style="margin:8px 16px 0;border-bottom:none">
+    <button class="rep-tab-btn active" data-rep="rep-monthly"><?= t('monthly_report') ?></button>
+    <button class="rep-tab-btn" data-rep="rep-herd"><?= t('herd_report') ?></button>
+  </div>
+
+  <div id="rep-monthly" class="rep-panel active" style="padding:16px">
+    <div class="card mb-16">
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label"><?= t('from_date') ?></label>
+            <input type="date" id="r-from" class="form-control" value="<?= date('Y-m-01') ?>">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><?= t('to_date') ?></label>
+            <input type="date" id="r-to" class="form-control" value="<?= date('Y-m-t') ?>">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="loadMonthlyReport()"><?= t('generate_report') ?></button>
+      </div>
+    </div>
+    <div id="rep-monthly-output"></div>
+  </div>
+
+  <div id="rep-herd" class="rep-panel" style="padding:16px;display:none">
+    <div class="card mb-16">
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label"><?= t('herd') ?></label>
+          <select id="r-herd" class="form-control">
+            <option value="">– <?= t('herd') ?> –</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="loadHerdReport()"><?= t('generate_report') ?></button>
+      </div>
+    </div>
+    <div id="rep-herd-output"></div>
+  </div>
+</div>
 
 <script>
 const T = <?= json_encode([
@@ -51,6 +101,7 @@ const T = <?= json_encode([
   'cat_heifer_calf'        => t('cat_heifer_calf'),
   'cat_weaner'             => t('cat_weaner'),
   'cat_replacement_heifer' => t('cat_replacement_heifer'),
+  'bs_pregnant'            => t('bs_pregnant'),
 ]) ?>;
 
 const CAT_LABELS = {
@@ -244,6 +295,167 @@ function loadMonthly() {
 }
 
 function escHtml(s){const d=document.createElement('div');d.textContent=String(s||'');return d.innerHTML;}
+
+// ── Top-level tabs (Summary / Reports) ───────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Inner report sub-tabs (Monthly / Herd) ───────────────────────────────────
+document.querySelectorAll('.rep-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.rep-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.rep-panel').forEach(p => p.style.display = 'none');
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.rep).style.display = '';
+  });
+});
+
+// Load herds into the herd selector
+fetch('/api/herds.php').then(r=>r.json()).then(res=>{
+  const sel = document.getElementById('r-herd');
+  (res.data||[]).forEach(h => {
+    const o = document.createElement('option');
+    o.value = h.id; o.textContent = h.name;
+    sel.appendChild(o);
+  });
+});
+
+function loadMonthlyReport() {
+  const from = document.getElementById('r-from').value;
+  const to   = document.getElementById('r-to').value;
+  const el   = document.getElementById('rep-monthly-output');
+  el.innerHTML = '<div class="page-loader"><div class="spinner"></div></div>';
+  fetch(`/api/reports.php?type=monthly&from=${from}&to=${to}`)
+    .then(r=>r.json())
+    .then(res => {
+      if (!res.success) { el.innerHTML='<p class="text-muted" style="padding:16px">Failed to load.</p>'; return; }
+      const d = res.data;
+      const dead      = (d.dead_sold||[]).filter(a=>a.animal_status==='dead');
+      const sold      = (d.dead_sold||[]).filter(a=>a.animal_status==='sold');
+      const purchases = d.purchases || [];
+      const newborns  = d.newborns  || [];
+      const monthLabel = new Date(from+'T00:00:00').toLocaleDateString(undefined,{month:'long',year:'numeric'});
+      el.innerHTML = `
+        <div class="stat-grid" style="padding:0 0 16px">
+          <div class="stat-card"><span class="stat-val">${d.total_active}</span><span class="stat-label">${T.total_animals}</span></div>
+          <div class="stat-card"><span class="stat-val">${sold.length}</span><span class="stat-label">${T.as_sold}</span></div>
+          <div class="stat-card"><span class="stat-val">${dead.length}</span><span class="stat-label">${T.as_dead}</span></div>
+          <div class="stat-card"><span class="stat-val">${newborns.length}</span><span class="stat-label">${T.born_label}</span></div>
+        </div>
+
+        <div class="section-header"><h2>${T.by_category}</h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${(d.by_category||[]).map(c=>`
+            <div class="list-item">
+              <div class="item-body"><div class="item-title">${escHtml(catLabel(c.category))}</div></div>
+              <strong>${c.cnt}</strong>
+            </div>`).join('') || `<div class="p-16 text-muted text-sm">${T.no_data}</div>`}
+        </div>
+
+        ${sold.length ? `
+        <div class="section-header"><h2>${T.sold_in} ${monthLabel}</h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${sold.map(a=>`
+            <a href="/animal-detail.php?id=${a.id}" class="list-item">
+              <div class="item-body">
+                <div class="item-title">${escHtml(a.ear_tag)}</div>
+                <div class="item-sub">${escHtml(catLabel(a.category))} · ${a.status_date}${a.status_notes?' · '+escHtml(a.status_notes):''}</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;color:#1565C0;background:#e3f2fd;padding:2px 8px;border-radius:20px">${T.as_sold.toUpperCase()}</span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>`).join('')}
+        </div>` : ''}
+
+        ${purchases.length ? `
+        <div class="section-header"><h2>${T.purchased_in} ${monthLabel}</h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${purchases.map(p=>`
+            <div class="list-item">
+              <div class="item-body">
+                <div class="item-title">${escHtml(catLabel(p.category))} · ${p.total_purchased} ${T.animals_count}</div>
+                <div class="item-sub">${escHtml(p.seller||'–')} · ${p.date_purchased}</div>
+              </div>
+              <strong>R ${parseFloat(p.price_zar).toLocaleString()}</strong>
+            </div>`).join('')}
+          <div class="list-item" style="background:var(--surface-2,rgba(255,255,255,0.05))">
+            <div class="item-body"><div class="item-title" style="font-weight:700">${T.total}</div></div>
+            <strong>${purchases.reduce((s,p)=>s+parseInt(p.total_purchased),0)} ${T.animals_count}</strong>
+          </div>
+        </div>` : ''}
+
+        ${newborns.length ? `
+        <div class="section-header"><h2>${T.born_in} ${monthLabel} (${newborns.length})</h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${newborns.map(a=>`
+            <a href="/animal-detail.php?id=${a.id}" class="list-item">
+              <div class="item-body">
+                <div class="item-title">${escHtml(a.ear_tag)}</div>
+                <div class="item-sub">${escHtml(catLabel(a.category))}${a.dam_tag?' · Dam: '+escHtml(a.dam_tag):''} · ${a.dob}</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;color:#2e7d32;background:#e8f5e9;padding:2px 8px;border-radius:20px">${T.born_label.toUpperCase()}</span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>`).join('')}
+        </div>` : ''}
+
+        ${dead.length ? `
+        <div class="section-header"><h2>${T.deaths_in} ${monthLabel} (${dead.length})</h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${dead.map(a=>`
+            <a href="/animal-detail.php?id=${a.id}" class="list-item">
+              <div class="item-body">
+                <div class="item-title">${escHtml(a.ear_tag)}</div>
+                <div class="item-sub">${escHtml(catLabel(a.category))} · ${a.status_date}${a.status_notes?' · '+escHtml(a.status_notes):''}</div>
+              </div>
+              <span style="font-size:11px;font-weight:700;color:#b71c1c;background:#ffebee;padding:2px 8px;border-radius:20px">${T.as_dead.toUpperCase()}</span>
+              <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </a>`).join('')}
+        </div>` : ''}
+      `;
+    });
+}
+
+function loadHerdReport() {
+  const herdId = document.getElementById('r-herd').value;
+  if (!herdId) { alert('<?= t('herd') ?>?'); return; }
+  const el = document.getElementById('rep-herd-output');
+  el.innerHTML = '<div class="page-loader"><div class="spinner"></div></div>';
+  fetch(`/api/reports.php?type=herd&herd_id=${herdId}`)
+    .then(r=>r.json())
+    .then(res => {
+      if (!res.success) { el.innerHTML='<p class="text-muted" style="padding:16px">Failed.</p>'; return; }
+      const d = res.data;
+      el.innerHTML = `
+        <div class="stat-grid" style="padding:0 0 16px">
+          <div class="stat-card"><span class="stat-val">${d.total_active}</span><span class="stat-label">${T.total_animals}</span></div>
+          <div class="stat-card"><span class="stat-val">${d.pregnant_cows}</span><span class="stat-label">${T.bs_pregnant}</span></div>
+          <div class="stat-card alert"><span class="stat-val">${d.vaccinations_overdue}</span><span class="stat-label">${T.vaccines_overdue}</span></div>
+          <div class="stat-card"><span class="stat-val">${d.vaccinations_due}</span><span class="stat-label">${T.vaccines_due_7d}</span></div>
+        </div>
+        <div class="section-header"><h2>${T.by_category}</h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${(d.by_category||[]).map(c=>`
+            <div class="list-item">
+              <div class="item-body"><div class="item-title">${escHtml(catLabel(c.category))}</div></div>
+              <strong>${c.cnt}</strong>
+            </div>`).join('') || `<div class="p-16 text-muted text-sm">${T.no_data}</div>`}
+        </div>
+        <div class="section-header"><h2><?= t('avg_interval_label') ?></h2></div>
+        <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
+          ${(d.avg_weight_by_cat||[]).map(w=>`
+            <div class="list-item">
+              <div class="item-body"><div class="item-title">${escHtml(catLabel(w.category))}</div></div>
+              <strong>${w.avg_weight} kg</strong>
+            </div>`).join('') || `<div class="p-16 text-muted text-sm">${T.no_data}</div>`}
+        </div>
+      `;
+    });
+}
 
 function toggleMonthSection(id, btn) {
   const list = document.getElementById(id);

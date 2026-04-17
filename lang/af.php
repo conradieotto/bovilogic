@@ -189,6 +189,7 @@ return [
 
     // Reports
     'reports'          => 'Verslae',
+    'generate_report'  => 'Genereer Verslag',
     'monthly_report'   => 'Maandelikse Verslag',
     'herd_report'      => 'Kudde Verslag',
     'export_csv'       => 'Voer CSV uit',

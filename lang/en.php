@@ -192,6 +192,7 @@ return [
 
     // Reports
     'reports'          => 'Reports',
+    'generate_report'  => 'Generate Report',
     'monthly_report'   => 'Monthly Report',
     'herd_report'      => 'Herd Report',
     'export_csv'       => 'Export CSV',
