@@ -281,6 +281,9 @@ return [
     'pending_label'    => 'Pending',
     'history_label'    => 'History',
     'mark_done'        => 'Done',
+    'select_all'       => 'Select All',
+    'mark_done_count'  => 'Mark Done',
+    'items_selected'   => 'selected',
 
     // Event types
     'ev_branding'      => 'Branding',

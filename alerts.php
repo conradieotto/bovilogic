@@ -55,57 +55,94 @@ const T = <?= json_encode([
   'days'              => t('days'),
   'day'               => t('day'),
   'mark_done'         => t('mark_done'),
+  'select_all'        => t('select_all'),
+  'mark_done_count'   => t('mark_done_count'),
+  'items_selected'    => t('items_selected'),
 ]) ?>;
 
-function markDone(id, product) {
-  if (!confirm('Mark "' + product + '" as done today?')) return;
-  fetch('/api/vaccinations.php?id=' + id, {
-    method: 'PUT',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({
-      completed: true,
-      completion_date: new Date().toISOString().slice(0,10),
-      product: product,
-      due_date: document.getElementById('due-' + id).dataset.due
-    })
-  })
-  .then(function(r) { return r.text(); })
-  .then(function(text) {
-    var res;
-    try { res = JSON.parse(text); } catch(e) { alert('Error: ' + text.substring(0,200)); return; }
-    if (res.success) {
-      var row = document.getElementById('vacc-row-' + id);
-      if (row) row.remove();
-      showToast(T.mark_done);
-    } else {
-      alert(res.message || 'Error');
-    }
-  })
-  .catch(function(e) { alert('Network error: ' + e.message); });
+function _markDoneIds(ids, onDone) {
+  var today = new Date().toISOString().slice(0,10);
+  var promises = ids.map(function(item) {
+    return fetch('/api/vaccinations.php?id=' + item.id, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ completed: true, completion_date: today, product: item.product, due_date: item.due })
+    }).then(function(r) { return r.json(); }).then(function(res) {
+      if (res.success) {
+        var row = document.getElementById('vacc-row-' + item.id);
+        if (row) row.remove();
+      }
+    });
+  });
+  Promise.all(promises).then(function() {
+    showToast(T.mark_done);
+    if (onDone) onDone();
+  });
 }
 
-function renderVacc(items, el) {
+function bulkMarkDone(sectionId) {
+  var boxes = document.querySelectorAll('.vacc-check-' + sectionId + ':checked');
+  if (!boxes.length) return;
+  var items = Array.from(boxes).map(function(cb) {
+    return { id: parseInt(cb.dataset.id), product: cb.dataset.product, due: cb.dataset.due };
+  });
+  if (!confirm(T.mark_done_count + ' ' + items.length + ' ' + T.items_selected + '?')) return;
+  _markDoneIds(items, function() { _updateBulkBtn(sectionId); });
+}
+
+function _toggleSelectAll(sectionId, checked) {
+  document.querySelectorAll('.vacc-check-' + sectionId).forEach(function(cb) { cb.checked = checked; });
+  _updateBulkBtn(sectionId);
+}
+
+function _onVaccCheck(sectionId) {
+  var boxes = Array.from(document.querySelectorAll('.vacc-check-' + sectionId));
+  var allChecked = boxes.every(function(cb) { return cb.checked; });
+  var sa = document.getElementById('vacc-sa-' + sectionId);
+  if (sa) sa.checked = allChecked;
+  _updateBulkBtn(sectionId);
+}
+
+function _updateBulkBtn(sectionId) {
+  var checked = Array.from(document.querySelectorAll('.vacc-check-' + sectionId + ':checked'));
+  var btn = document.getElementById('vacc-bulk-' + sectionId);
+  if (!btn) return;
+  if (checked.length > 0) {
+    btn.style.display = '';
+    btn.textContent = '\u2713 ' + T.mark_done_count + ' (' + checked.length + ')';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function renderVacc(items, el, sectionId) {
   if (!items.length) { el.innerHTML = '<div class="p-16 text-muted text-sm" style="padding:16px">' + T.no_animals_flagged + '</div>'; return; }
   var today = new Date();
   var html = '';
+  if (IS_ADMIN) {
+    html += '<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.06)">'
+      + '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.85rem;color:var(--text-muted);user-select:none">'
+      + '<input type="checkbox" id="vacc-sa-' + sectionId + '" onchange="_toggleSelectAll(\'' + sectionId + '\',this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue)">'
+      + T.select_all
+      + '</label>'
+      + '<button id="vacc-bulk-' + sectionId + '" onclick="bulkMarkDone(\'' + sectionId + '\')" class="btn btn-primary" style="display:none;padding:5px 12px;font-size:12px"></button>'
+      + '</div>';
+  }
   for (var i = 0; i < items.length; i++) {
     var v = items[i];
     var overdue = new Date(v.due_date) < today;
     var label = v.animal_tag || v.herd_name || 'Unknown';
     var linkHref = v.animal_id ? '/animal-detail.php?id=' + v.animal_id : (v.herd_id ? '/herds.php' : '');
-    var doneBtn = IS_ADMIN
-      ? '<button onclick="markDone(' + v.id + ', \'' + esc(v.product) + '\')" class="btn btn-primary" style="padding:6px 10px;font-size:12px;white-space:nowrap">\u2713 ' + T.mark_done + '</button>'
+    var checkbox = IS_ADMIN
+      ? '<input type="checkbox" class="vacc-check-' + sectionId + '" data-id="' + v.id + '" data-product="' + esc(v.product) + '" data-due="' + v.due_date + '" onchange="_onVaccCheck(\'' + sectionId + '\')" style="width:16px;height:16px;cursor:pointer;accent-color:var(--blue);flex-shrink:0" onclick="event.stopPropagation()">'
       : '';
-    html += '<div class="list-item" id="vacc-row-' + v.id + '">'
-      + '<span id="due-' + v.id + '" data-due="' + v.due_date + '" style="display:none"></span>'
+    html += '<div class="list-item" id="vacc-row-' + v.id + '" style="gap:10px">'
+      + (IS_ADMIN ? '<div style="display:flex;align-items:center;padding-left:2px">' + checkbox + '</div>' : '')
       + '<div class="item-body" style="cursor:pointer" onclick="if(\'' + linkHref + '\')location.href=\'' + linkHref + '\'">'
       + '<div class="item-title">' + esc(v.product) + ' \u2014 ' + esc(label) + '</div>'
       + '<div class="item-sub">' + T.due_date + ': ' + fmtDate(v.due_date) + (v.dosage ? ' \u00b7 ' + esc(v.dosage) : '') + '</div>'
       + '</div>'
-      + '<div style="display:flex;align-items:center;gap:8px">'
       + '<span class="badge ' + (overdue ? 'badge-red' : 'badge-amber') + '">' + (overdue ? T.overdue : T.due_soon) + '</span>'
-      + doneBtn
-      + '</div>'
       + '</div>';
   }
   el.innerHTML = html;
@@ -180,11 +217,11 @@ fetch('/api/alerts.php')
 
 fetch('/api/vaccinations.php?overdue=1')
   .then(function(r){return r.json();})
-  .then(function(res){ renderVacc(res.data||[], document.getElementById('vacc-overdue')); });
+  .then(function(res){ renderVacc(res.data||[], document.getElementById('vacc-overdue'), 'overdue'); });
 
 fetch('/api/vaccinations.php?due_soon=1')
   .then(function(r){return r.json();})
-  .then(function(res){ renderVacc(res.data||[], document.getElementById('vacc-due')); });
+  .then(function(res){ renderVacc(res.data||[], document.getElementById('vacc-due'), 'due'); });
 
 fetch('/api/animals.php?status=active')
   .then(function(r){return r.json();})

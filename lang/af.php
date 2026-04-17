@@ -280,6 +280,9 @@ return [
     'pending_label'       => 'Hangende',
     'history_label'       => 'Geskiedenis',
     'mark_done'           => 'Klaar',
+    'select_all'          => 'Kies Alles',
+    'mark_done_count'     => 'Merk Klaar',
+    'items_selected'      => 'gekies',
 
     // Event types
     'ev_branding'      => 'Brandmerk',
