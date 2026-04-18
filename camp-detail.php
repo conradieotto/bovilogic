@@ -26,8 +26,46 @@ require_once __DIR__ . '/templates/header.php';
 <div class="page-wrap">
 <div class="page-header">
   <h1><i class="fa-solid fa-map-location-dot"></i> <?= htmlspecialchars($camp['name']) ?></h1>
-  <a href="/camps.php?farm=<?= $camp['farm_id'] ?>" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> <?= t('back') ?></a>
+  <div style="display:flex;gap:8px">
+    <?php if (isSuperAdmin()): ?>
+    <button class="btn btn-primary btn-sm" onclick="document.getElementById('edit-panel').style.display=document.getElementById('edit-panel').style.display==='none'?'block':'none'">
+      <i class="fa-solid fa-pen"></i> <?= t('edit') ?>
+    </button>
+    <?php endif; ?>
+    <a href="/camps.php?farm=<?= $camp['farm_id'] ?>" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> <?= t('back') ?></a>
+  </div>
 </div>
+
+<?php if (isSuperAdmin()): ?>
+<!-- Inline edit panel -->
+<div id="edit-panel" style="display:none;padding:0 16px 16px">
+  <div class="list-card" style="padding:16px">
+    <div style="font-weight:700;margin-bottom:12px"><?= t('edit_camp') ?></div>
+    <div class="form-group">
+      <label class="form-label"><?= t('size_ha') ?></label>
+      <input type="number" id="ep-size" class="form-control" step="0.1" min="0" value="<?= htmlspecialchars($camp['size_ha'] ?? '') ?>" placeholder="e.g. 45.5">
+    </div>
+    <div class="form-group">
+      <label class="form-label"><?= t('stocking_rate') ?></label>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-weight:700">1 :</span>
+        <input type="number" id="ep-ratio" class="form-control" step="0.5" min="1" value="<?= htmlspecialchars($camp['stocking_ratio'] ?? '') ?>" placeholder="e.g. 10">
+        <span style="color:var(--text-muted);font-size:0.82rem;white-space:nowrap"><?= t('ha_per_animal') ?></span>
+      </div>
+      <div style="color:var(--text-muted);font-size:0.78rem;margin-top:4px"><?= t('stocking_rate_hint') ?></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label"><?= t('notes') ?></label>
+      <textarea id="ep-notes" class="form-control"><?= htmlspecialchars($camp['notes'] ?? '') ?></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" onclick="saveEditPanel()"><?= t('save') ?></button>
+      <button class="btn btn-secondary" onclick="document.getElementById('edit-panel').style.display='none'"><?= t('cancel') ?></button>
+    </div>
+  </div>
+</div>
+<?php endif; ?>
+
 
 <!-- Camp info + grazing summary -->
 <div style="padding:16px 16px 0">
@@ -199,6 +237,35 @@ fetch(`/api/herd_movements.php?camp_id=${CAMP_ID}`)
         </div>
       </div>`;
   });
+
+function saveEditPanel() {
+  const size  = document.getElementById('ep-size')?.value || null;
+  const ratio = document.getElementById('ep-ratio')?.value || null;
+  const notes = document.getElementById('ep-notes')?.value || '';
+  fetch(`/api/camps.php?id=${CAMP_ID}`, {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      name:            <?= json_encode($camp['name']) ?>,
+      farm_id:         <?= (int)$camp['farm_id'] ?>,
+      size_ha:         size,
+      stocking_ratio:  ratio,
+      notes:           notes,
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if (res.success) {
+      showToast('<?= t('save') ?>');
+      document.getElementById('edit-panel').style.display = 'none';
+      // Reload grazing panel
+      location.reload();
+    } else {
+      alert(res.message || 'Error saving.');
+    }
+  })
+  .catch(() => alert('Save failed.'));
+}
 
 function fmtDate(d) {
   if (!d) return '–';
