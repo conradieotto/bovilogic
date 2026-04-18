@@ -59,7 +59,7 @@ require_once __DIR__ . '/templates/header.php';
       <textarea id="ep-notes" class="form-control"><?= htmlspecialchars($camp['notes'] ?? '') ?></textarea>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn btn-primary" onclick="saveEditPanel()"><?= t('save') ?></button>
+      <button class="btn btn-primary" id="ep-save-btn" onclick="saveEditPanel()"><?= t('save') ?></button>
       <button class="btn btn-secondary" onclick="document.getElementById('edit-panel').style.display='none'"><?= t('cancel') ?></button>
     </div>
   </div>
@@ -122,7 +122,11 @@ const T = <?= json_encode([
 // Load camp with grazing info
 fetch(`/api/camps.php?id=${CAMP_ID}`)
   .then(r => r.json())
+  .catch(function() {
+    document.getElementById('grazing-panel').innerHTML = '<span style="color:var(--text-muted);font-size:0.875rem">Could not load grazing data.</span>';
+  })
   .then(res => {
+    if (!res) return;
     const c  = res.data;
     const g  = c?.grazing;
     const el = document.getElementById('grazing-panel');
@@ -239,32 +243,37 @@ fetch(`/api/herd_movements.php?camp_id=${CAMP_ID}`)
   });
 
 function saveEditPanel() {
-  const size  = document.getElementById('ep-size')?.value || null;
-  const ratio = document.getElementById('ep-ratio')?.value || null;
-  const notes = document.getElementById('ep-notes')?.value || '';
-  fetch(`/api/camps.php?id=${CAMP_ID}`, {
+  const btn   = document.getElementById('ep-save-btn');
+  const size  = document.getElementById('ep-size').value.trim() || null;
+  const ratio = document.getElementById('ep-ratio').value.trim() || null;
+  const notes = document.getElementById('ep-notes').value.trim();
+
+  if (btn) { btn.disabled = true; btn.textContent = '...'; }
+
+  fetch('/api/camps.php?id=<?= $campId ?>', {
     method: 'PUT',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({
-      name:            <?= json_encode($camp['name']) ?>,
-      farm_id:         <?= (int)$camp['farm_id'] ?>,
-      size_ha:         size,
-      stocking_ratio:  ratio,
-      notes:           notes,
+      name:           <?= json_encode($camp['name']) ?>,
+      farm_id:        <?= (int)($camp['farm_id'] ?? 0) ?>,
+      size_ha:        size,
+      stocking_ratio: ratio,
+      notes:          notes,
     })
   })
-  .then(r => r.json())
-  .then(res => {
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
     if (res.success) {
-      showToast('<?= t('save') ?>');
-      document.getElementById('edit-panel').style.display = 'none';
-      // Reload grazing panel
       location.reload();
     } else {
-      alert(res.message || 'Error saving.');
+      alert(res.message || 'Error saving camp.');
+      if (btn) { btn.disabled = false; btn.textContent = '<?= t('save') ?>'; }
     }
   })
-  .catch(() => alert('Save failed.'));
+  .catch(function(err) {
+    alert('Save failed: ' + err.message);
+    if (btn) { btn.disabled = false; btn.textContent = '<?= t('save') ?>'; }
+  });
 }
 
 function fmtDate(d) {
