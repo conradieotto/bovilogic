@@ -108,8 +108,8 @@ function loadHerds() {
     }
     el.innerHTML = '<div class="list-card">' + res.data.map(h => `
       <a href="/animals.php?herd_id=${h.id}" class="list-item">
-        <div class="item-icon" style="background:${escHtml(h.color)};color:#fff">
-          <svg viewBox="0 0 24 24" style="fill:#fff"><circle cx="9" cy="8" r="3"/><circle cx="15" cy="8" r="3"/><path d="M1 18v-1c0-2.2 3.6-4 8-4s8 1.8 8 4v1H1zm14.3-4c2.5.4 4.7 1.7 4.7 3v1h-4v-1c0-1.1-.7-2.1-1.8-2.9l1.1-.1z"/></svg>
+        <div class="item-icon" style="background:${escHtml(h.color)}">
+          <svg viewBox="0 0 24 24" style="fill:${iconFill(h.color)}"><circle cx="9" cy="8" r="3"/><circle cx="15" cy="8" r="3"/><path d="M1 18v-1c0-2.2 3.6-4 8-4s8 1.8 8 4v1H1zm14.3-4c2.5.4 4.7 1.7 4.7 3v1h-4v-1c0-1.1-.7-2.1-1.8-2.9l1.1-.1z"/></svg>
         </div>
         <div class="item-body">
           <div class="item-title">${escHtml(h.name)}</div>
@@ -279,6 +279,16 @@ function deleteHerd(e, id, name) {
 }
 
 function escHtml(s) { const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+// Returns the correct icon fill colour (#fff or dark) based on background luminance
+function iconFill(hex) {
+  if (!hex || hex.length < 4) return '#fff';
+  const h = hex.replace('#','');
+  const r = parseInt(h.length===3 ? h[0]+h[0] : h.slice(0,2), 16);
+  const g = parseInt(h.length===3 ? h[1]+h[1] : h.slice(2,4), 16);
+  const b = parseInt(h.length===3 ? h[2]+h[2] : h.slice(4,6), 16);
+  return (0.299*r + 0.587*g + 0.114*b) / 255 > 0.58 ? '#1a202c' : '#fff';
+}
 
 loadHerds();
 </script>
