@@ -319,4 +319,22 @@ return [
     'expected_label'   => 'Verwag',
     'no_farms_yet'     => 'Nog geen plase nie.',
     'animals_count'    => 'diere',
+
+    // Grazing calculator
+    'stocking_rate'    => 'Belaaiingskoers',
+    'stocking_rate_hint'=> 'bv. 1:10 = 1 dier per 10 ha per jaar',
+    'ha_per_animal'    => 'ha / dier / jaar',
+    'grazing_budget'   => 'Begroting',
+    'used_12m'         => 'Gebruik (12 maande)',
+    'grazing_remaining'=> 'Oorbly',
+    'days_left'        => 'dae oor',
+    'move_out_by'      => 'Skuif uit teen',
+    'overgrazed'       => 'Oorbewei — skuif trop uit!',
+    'grazing_warning'  => 'Beweidingswaarskuwings',
+    'no_grazing_alerts'=> 'Alle kampe binne beweidingsperke.',
+    'animal_days'      => 'dierdae',
+    'grazing_history'  => 'Beweidingsgeskiedenis',
+    'no_stocking_rate' => 'Geen belaaiingskoers ingestel',
+    'no_grazing_data'  => 'Geen beweidingsgeskiedenis nie.',
+    'ongoing_label'    => 'Tans hier',
 ];

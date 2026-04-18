@@ -19,4 +19,15 @@ $rows = DB::rows(
     [$campId]
 );
 
+// Add computed fields
+$today = date('Y-m-d');
+foreach ($rows as &$row) {
+    $endDate         = $row['date_out'] ?? $today;
+    $days            = max(0, (int)round((strtotime($endDate) - strtotime($row['date_in'])) / 86400));
+    $row['days']     = $days;
+    $row['animal_days'] = ($row['animal_count'] ?? 0) * $days;
+    $row['is_open']  = $row['date_out'] === null;
+}
+unset($row);
+
 jsonSuccess($rows);

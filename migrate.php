@@ -51,6 +51,8 @@ $migrations = [
     'calving.calf_tag'       => "ALTER TABLE calving ADD COLUMN calf_tag VARCHAR(50) DEFAULT NULL AFTER calf_id",
     'animals.status_date'    => "ALTER TABLE animals ADD COLUMN status_date DATE DEFAULT NULL AFTER animal_status",
     'animals.status_notes'   => "ALTER TABLE animals ADD COLUMN status_notes TEXT DEFAULT NULL AFTER status_date",
+    'camps.stocking_ratio'        => "ALTER TABLE camps ADD COLUMN stocking_ratio DECIMAL(5,2) DEFAULT NULL",
+    'herd_movements.animal_count' => "ALTER TABLE herd_movements ADD COLUMN animal_count INT DEFAULT NULL",
     'create.purchases'       => "CREATE TABLE IF NOT EXISTS purchases (
         id INT AUTO_INCREMENT PRIMARY KEY,
         date_purchased DATE NOT NULL,

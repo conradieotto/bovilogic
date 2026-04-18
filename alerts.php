@@ -35,6 +35,9 @@ require_once __DIR__ . '/templates/header.php';
 <div class="section-header"><h2><?= t('upcoming_calvings') ?></h2></div>
 <div id="calvings" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
 
+<div class="section-header"><h2><?= t('grazing_warning') ?></h2></div>
+<div id="grazing-alerts" class="list-card list-card-inset" style="margin:0 16px 16px"><div class="page-loader"><div class="spinner"></div></div></div>
+
 <script>
 var IS_ADMIN = <?= $isAdmin ? 'true' : 'false' ?>;
 const T = <?= json_encode([
@@ -58,7 +61,57 @@ const T = <?= json_encode([
   'select_all'        => t('select_all'),
   'mark_done_count'   => t('mark_done_count'),
   'items_selected'    => t('items_selected'),
+  'overgrazed'        => t('overgrazed'),
+  'days_left'         => t('days_left'),
+  'move_out_by'       => t('move_out_by'),
+  'no_grazing_alerts' => t('no_grazing_alerts'),
+  'animals_count'     => t('animals_count'),
 ]) ?>;
+
+function loadGrazingAlerts() {
+  fetch('/api/camps.php')
+    .then(r => r.json())
+    .then(res => {
+      const el = document.getElementById('grazing-alerts');
+      const camps = (res.data || []).filter(c => c.grazing && c.grazing.current_animals > 0);
+      const flagged = camps.filter(c => c.grazing.days_left !== null && c.grazing.days_left <= 21);
+      flagged.sort((a,b) => a.grazing.days_left - b.grazing.days_left);
+
+      if (!flagged.length) {
+        el.innerHTML = `<div style="padding:14px 16px;color:var(--text-muted);font-size:0.875rem">${T.no_grazing_alerts}</div>`;
+        return;
+      }
+
+      el.innerHTML = flagged.map(c => {
+        const g = c.grazing;
+        const isOver = g.days_left <= 0;
+        const color  = isOver ? '#c62828' : g.days_left <= 7 ? '#e65100' : '#f57f17';
+        const bg     = isOver ? '#ffebee' : g.days_left <= 7 ? '#fff3e0' : '#fffde7';
+        const pct    = g.pct_used;
+        const label  = isOver
+          ? T.overgrazed
+          : (g.days_left + ' ' + T.days_left);
+        const moveDate = g.move_out_by
+          ? new Date(g.move_out_by + 'T00:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'})
+          : '';
+
+        return `
+          <a href="/camp-detail.php?id=${c.id}" class="list-item">
+            <div class="item-icon" style="background:${bg};border:1px solid ${color}33">
+              <svg viewBox="0 0 24 24" style="fill:none;stroke:${color};stroke-width:2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            </div>
+            <div class="item-body">
+              <div class="item-title" style="color:${color}">${escHtml(c.name)}</div>
+              <div class="item-sub">${escHtml(c.farm_name||'')} · ${g.current_animals} ${T.animals_count} · ${pct}% used</div>
+              <div class="item-sub" style="margin-top:2px;font-weight:600;color:${color}">
+                ${label}${moveDate && !isOver ? ' · ' + T.move_out_by + ' ' + moveDate : ''}
+              </div>
+            </div>
+            <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </a>`;
+      }).join('');
+    });
+}
 
 function _markDoneIds(ids, onDone) {
   var today = new Date().toISOString().slice(0,10);
@@ -259,7 +312,10 @@ fetch('/api/animals.php?status=active')
   });
 
 function esc(s) { var d=document.createElement('div'); d.textContent=String(s||''); return d.innerHTML; }
+function escHtml(s) { return esc(s); }
 function fmtDate(s) { if(!s)return''; return new Date(s+'T00:00:00').toLocaleDateString(); }
+
+loadGrazingAlerts();
 </script>
 
 <?php require_once __DIR__ . '/templates/footer.php'; ?>

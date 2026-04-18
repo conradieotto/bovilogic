@@ -48,7 +48,6 @@ require_once __DIR__ . '/templates/header.php';
     <div class="modal-body">
       <input type="hidden" id="camp-id" value="">
 
-      <!-- Farm selector (only shown when no farm pre-selected) -->
       <div class="form-group" id="farm-select-group" <?= $farmId ? 'style="display:none"' : '' ?>>
         <label class="form-label"><?= t('farm') ?> <span class="required">*</span></label>
         <select id="camp-farm" class="form-control">
@@ -71,7 +70,16 @@ require_once __DIR__ . '/templates/header.php';
         <input type="number" id="camp-size" class="form-control" step="0.1" min="0" placeholder="e.g. 45.5">
       </div>
 
-      <!-- Assign herd to this camp -->
+      <div class="form-group">
+        <label class="form-label"><?= t('stocking_rate') ?></label>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1rem;font-weight:600;white-space:nowrap">1 :</span>
+          <input type="number" id="camp-ratio" class="form-control" step="0.5" min="1" placeholder="e.g. 10">
+          <span style="color:var(--text-muted);font-size:0.82rem;white-space:nowrap"><?= t('ha_per_animal') ?></span>
+        </div>
+        <div style="color:var(--text-muted);font-size:0.78rem;margin-top:4px"><?= t('stocking_rate_hint') ?></div>
+      </div>
+
       <div class="form-group">
         <label class="form-label"><?= t('assign_herd') ?></label>
         <select id="camp-herd" class="form-control">
@@ -96,14 +104,18 @@ require_once __DIR__ . '/templates/header.php';
 const FARM_ID = <?= $farmId ?>;
 const isAdmin = <?= isSuperAdmin() ? 'true' : 'false' ?>;
 const T = <?= json_encode([
-  'no_camps_yet'     => t('no_camps_yet'),
-  'add_camp'         => t('add_camp'),
-  'edit'             => t('edit'),
-  'delete'           => t('delete'),
-  'no_herd_assigned' => t('no_herd_assigned'),
+  'no_camps_yet'      => t('no_camps_yet'),
+  'add_camp'          => t('add_camp'),
+  'edit'              => t('edit'),
+  'delete'            => t('delete'),
+  'no_herd_assigned'  => t('no_herd_assigned'),
+  'days_left'         => t('days_left'),
+  'move_out_by'       => t('move_out_by'),
+  'overgrazed'        => t('overgrazed'),
+  'no_stocking_rate'  => t('no_stocking_rate'),
+  'animals_count'     => t('animals_count'),
 ]) ?>;
 
-// Pre-load all herds for the assign dropdown
 let allHerds = [];
 fetch('/api/herds.php').then(r=>r.json()).then(res => {
   allHerds = res.data || [];
@@ -116,6 +128,38 @@ function populateHerdDropdown(farmId) {
   const filtered = farmId ? allHerds.filter(h => h.farm_id == farmId) : allHerds;
   sel.innerHTML = '<option value="">– No herd –</option>' +
     filtered.map(h => `<option value="${h.id}">${escHtml(h.name)}</option>`).join('');
+}
+
+function grazingBar(g) {
+  if (!g) return `<div class="item-sub" style="margin-top:4px;font-style:italic;color:var(--text-muted)">${T.no_stocking_rate}</div>`;
+
+  const pct      = g.pct_used;
+  const barColor = pct >= 100 ? '#c62828' : pct >= 80 ? '#e65100' : pct >= 60 ? '#f57f17' : '#2e7d32';
+  const bgColor  = pct >= 100 ? '#ffebee' : pct >= 80 ? '#fff3e0' : pct >= 60 ? '#fffde7' : '#e8f5e9';
+
+  let statusLine = '';
+  if (g.current_animals > 0) {
+    if (g.days_left <= 0) {
+      statusLine = `<span style="color:#c62828;font-weight:700">${T.overgrazed}</span>`;
+    } else {
+      const d = g.days_left === 1 ? '1 day' : g.days_left + ' ' + T.days_left;
+      const moveDate = new Date(g.move_out_by).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+      statusLine = `<span style="color:${barColor};font-weight:600">${d} left</span> · ${T.move_out_by} ${moveDate}`;
+    }
+  } else {
+    statusLine = `${g.remaining.toLocaleString()} animal-days remaining`;
+  }
+
+  return `
+    <div style="margin-top:6px">
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);margin-bottom:3px">
+        <span>${statusLine}</span>
+        <span>${pct}% used</span>
+      </div>
+      <div style="height:6px;border-radius:3px;background:${bgColor};overflow:hidden">
+        <div style="height:100%;width:${Math.min(100,pct)}%;background:${barColor};border-radius:3px;transition:width 0.4s"></div>
+      </div>
+    </div>`;
 }
 
 function loadCamps() {
@@ -133,28 +177,32 @@ function loadCamps() {
     }
 
     el.innerHTML = '<div class="list-card">' + res.data.map(c => {
-      // Find herd currently in this camp
       const herd = allHerds.find(h => h.camp_id == c.id);
       return `
-        <a href="/camp-detail.php?id=${c.id}" class="list-item">
-          <div class="item-icon">
-            <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--green);stroke-width:2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-          </div>
-          <div class="item-body">
-            <div class="item-title">${escHtml(c.name)}</div>
-            <div class="item-sub">
-              ${c.size_ha ? c.size_ha + ' ha · ' : ''}
-              ${herd
-                ? `<span style="color:var(--green);font-weight:600">${escHtml(herd.name)}</span>`
-                : `<span style="color:var(--text-muted)">${T.no_herd_assigned}</span>`}
+        <a href="/camp-detail.php?id=${c.id}" class="list-item" style="flex-direction:column;align-items:stretch;padding:12px 16px;gap:0">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="item-icon" style="flex-shrink:0">
+              <svg viewBox="0 0 24 24" style="fill:none;stroke:var(--green);stroke-width:2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
             </div>
+            <div class="item-body" style="min-width:0">
+              <div class="item-title">${escHtml(c.name)}</div>
+              <div class="item-sub">
+                ${c.size_ha ? c.size_ha + ' ha' : ''}
+                ${c.stocking_ratio ? ' · 1:' + c.stocking_ratio : ''}
+                ${c.size_ha || c.stocking_ratio ? ' · ' : ''}
+                ${herd
+                  ? `<span style="color:var(--green);font-weight:600">${escHtml(herd.name)}</span> (${herd.animal_count} ${T.animals_count})`
+                  : `<span style="color:var(--text-muted)">${T.no_herd_assigned}</span>`}
+              </div>
+            </div>
+            ${isAdmin ? `
+            <div class="list-actions" style="flex-shrink:0" onclick="event.preventDefault()">
+              <button class="btn btn-sm btn-secondary" onclick="editCamp(event,${JSON.stringify(c).replace(/"/g,'&quot;')})">${T.edit}</button>
+              <button class="btn btn-sm btn-danger"    onclick="deleteCamp(event,${c.id},'${escHtml(c.name)}')">${T.delete}</button>
+            </div>` : ''}
+            <svg class="chevron" viewBox="0 0 24 24" style="flex-shrink:0"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
           </div>
-          ${isAdmin ? `
-          <div class="list-actions" onclick="event.preventDefault()">
-            <button class="btn btn-sm btn-secondary" onclick="editCamp(event,${JSON.stringify(c).replace(/"/g,'&quot;')})">${T.edit}</button>
-            <button class="btn btn-sm btn-danger"    onclick="deleteCamp(event,${c.id},'${escHtml(c.name)}')">${T.delete}</button>
-          </div>` : ''}
-          <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          ${grazingBar(c.grazing)}
         </a>
       `;
     }).join('') + '</div>';
@@ -166,6 +214,7 @@ if (isAdmin) {
     document.getElementById('camp-id').value    = '';
     document.getElementById('camp-name').value  = '';
     document.getElementById('camp-size').value  = '';
+    document.getElementById('camp-ratio').value = '';
     document.getElementById('camp-notes').value = '';
     document.getElementById('camp-modal-title').textContent = '<?= t('add_camp') ?>';
     if (FARM_ID) document.getElementById('camp-farm').value = FARM_ID;
@@ -174,7 +223,6 @@ if (isAdmin) {
     openModal('camp-modal');
   });
 
-  // Update herd dropdown when farm changes
   document.getElementById('camp-farm')?.addEventListener('change', function() {
     populateHerdDropdown(this.value);
   });
@@ -185,12 +233,12 @@ function editCamp(e, c) {
   document.getElementById('camp-id').value    = c.id;
   document.getElementById('camp-name').value  = c.name;
   document.getElementById('camp-size').value  = c.size_ha || '';
+  document.getElementById('camp-ratio').value = c.stocking_ratio || '';
   document.getElementById('camp-notes').value = c.notes || '';
   document.getElementById('camp-modal-title').textContent = '<?= t('edit_camp') ?>';
   const farmId = c.farm_id || FARM_ID;
   if (document.getElementById('camp-farm')) document.getElementById('camp-farm').value = farmId;
   populateHerdDropdown(farmId);
-  // Pre-select herd currently in this camp
   const herd = allHerds.find(h => h.camp_id == c.id);
   document.getElementById('camp-herd').value = herd ? herd.id : '';
   openModal('camp-modal');
@@ -207,9 +255,10 @@ async function saveCamp() {
 
   const body = {
     name,
-    farm_id:  farmId,
-    size_ha:  document.getElementById('camp-size').value || null,
-    notes:    document.getElementById('camp-notes').value.trim(),
+    farm_id:         farmId,
+    size_ha:         document.getElementById('camp-size').value || null,
+    stocking_ratio:  document.getElementById('camp-ratio').value || null,
+    notes:           document.getElementById('camp-notes').value.trim(),
   };
 
   const method = id ? 'PUT' : 'POST';
@@ -220,7 +269,6 @@ async function saveCamp() {
 
   const campId = id || res.data?.id;
 
-  // If a herd was selected, assign it to this camp
   if (herdId && campId) {
     const herd = allHerds.find(h => h.id == herdId);
     if (herd) {
@@ -232,7 +280,6 @@ async function saveCamp() {
     }
   }
 
-  // If a herd was previously here but now cleared, unassign it
   if (!herdId && id) {
     const prev = allHerds.find(h => h.camp_id == id);
     if (prev) {
@@ -245,7 +292,6 @@ async function saveCamp() {
   }
 
   closeModal('camp-modal');
-  // Refresh herds list then camps
   const hr = await fetch('/api/herds.php').then(r=>r.json());
   allHerds = hr.data || [];
   loadCamps();

@@ -109,6 +109,14 @@ switch ($method) {
                 throw $e;
             }
         }
+        if (!empty($b['camp_id'])) {
+            try {
+                DB::exec(
+                    'INSERT INTO herd_movements (herd_id, farm_id, camp_id, date_in, animal_count, created_by) VALUES (?,?,?,?,?,?)',
+                    [$hid, $b['farm_id'], $b['camp_id'], date('Y-m-d'), 0, $user['id']]
+                );
+            } catch (Throwable $e) {}
+        }
         logActivity('herd', $hid, 'create', "Herd created: $name");
         jsonSuccess(['id' => $hid], 'Herd created', 201);
 
@@ -157,16 +165,23 @@ switch ($method) {
             }
         }
 
-        if ($newCampId && $newCampId != ($oldHerd['camp_id'] ?? null)) {
+        if ($newCampId != ($oldHerd['camp_id'] ?? null)) {
             try {
+                $animalCount = (int)DB::val(
+                    "SELECT COUNT(*) FROM animals WHERE herd_id = ? AND animal_status = 'active'", [$id]
+                );
+                // Close any open movement for this herd
                 DB::exec(
                     'UPDATE herd_movements SET date_out = ? WHERE herd_id = ? AND date_out IS NULL',
                     [$moveDate, $id]
                 );
-                DB::exec(
-                    'INSERT INTO herd_movements (herd_id, farm_id, camp_id, date_in, created_by) VALUES (?,?,?,?,?)',
-                    [$id, $newFarmId, $newCampId, $moveDate, $user['id']]
-                );
+                // Open new movement if moving into a camp
+                if ($newCampId) {
+                    DB::exec(
+                        'INSERT INTO herd_movements (herd_id, farm_id, camp_id, date_in, animal_count, created_by) VALUES (?,?,?,?,?,?)',
+                        [$id, $newFarmId, $newCampId, $moveDate, $animalCount, $user['id']]
+                    );
+                }
             } catch (Throwable $e) {
                 // herd_movements table not yet created — run migrate.php
             }

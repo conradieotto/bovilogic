@@ -320,4 +320,22 @@ return [
     'expected_label'   => 'Expected',
     'no_farms_yet'     => 'No farms yet.',
     'animals_count'    => 'animals',
+
+    // Grazing calculator
+    'stocking_rate'    => 'Stocking Rate',
+    'stocking_rate_hint'=> 'e.g. 1:10 = 1 animal per 10 ha per year',
+    'ha_per_animal'    => 'ha / animal / year',
+    'grazing_budget'   => 'Budget',
+    'used_12m'         => 'Used (12 months)',
+    'grazing_remaining'=> 'Remaining',
+    'days_left'        => 'days left',
+    'move_out_by'      => 'Move out by',
+    'overgrazed'       => 'Overgrazed — move herd out!',
+    'grazing_warning'  => 'Grazing Alerts',
+    'no_grazing_alerts'=> 'All camps within grazing limits.',
+    'animal_days'      => 'animal-days',
+    'grazing_history'  => 'Grazing History',
+    'no_stocking_rate' => 'No stocking rate set',
+    'no_grazing_data'  => 'No grazing history yet.',
+    'ongoing_label'    => 'Currently here',
 ];

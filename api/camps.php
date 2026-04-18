@@ -11,10 +11,64 @@ $method = $_SERVER['REQUEST_METHOD'];
 $id     = (int)($_GET['id'] ?? 0);
 $farmId = (int)($_GET['farm_id'] ?? 0);
 
+// Compute grazing budget/used/remaining for a camp
+function campGrazingInfo($campId, $sizeHa, $stockingRatio) {
+    if (!$stockingRatio || !$sizeHa) return null;
+    $budget = ($sizeHa / $stockingRatio) * 365;
+
+    // Animal-days used within rolling 12-month window
+    $used = (float)DB::val(
+        'SELECT COALESCE(SUM(
+            COALESCE(animal_count, 0) *
+            GREATEST(0, DATEDIFF(
+                COALESCE(date_out, CURDATE()),
+                GREATEST(date_in, DATE_SUB(CURDATE(), INTERVAL 1 YEAR))
+            ))
+         ), 0)
+         FROM herd_movements
+         WHERE camp_id = ?
+           AND COALESCE(date_out, CURDATE()) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
+        [$campId]
+    );
+
+    $remaining = max(0.0, $budget - $used);
+    $pctUsed   = $budget > 0 ? min(100, round($used / $budget * 100)) : 0;
+
+    // Current active animal count in this camp
+    $currentAnimals = (int)DB::val(
+        'SELECT COUNT(a.id) FROM herds h
+         LEFT JOIN animals a ON a.herd_id = h.id AND a.animal_status = \'active\'
+         WHERE h.camp_id = ? AND h.is_active = 1',
+        [$campId]
+    );
+
+    $daysLeft  = null;
+    $moveOutBy = null;
+    if ($currentAnimals > 0) {
+        $daysLeft  = (int)round($remaining / $currentAnimals);
+        $moveOutBy = date('Y-m-d', strtotime("+{$daysLeft} days"));
+    }
+
+    return [
+        'budget'          => (int)round($budget),
+        'used'            => (int)round($used),
+        'remaining'       => (int)round($remaining),
+        'pct_used'        => $pctUsed,
+        'days_left'       => $daysLeft,
+        'move_out_by'     => $moveOutBy,
+        'current_animals' => $currentAnimals,
+    ];
+}
+
 switch ($method) {
     case 'GET':
         if ($id) {
-            $c = DB::row('SELECT c.*, f.name AS farm_name FROM camps c LEFT JOIN farms f ON f.id = c.farm_id WHERE c.id = ?', [$id]);
+            $c = DB::row(
+                'SELECT c.*, f.name AS farm_name FROM camps c
+                 LEFT JOIN farms f ON f.id = c.farm_id WHERE c.id = ?',
+                [$id]
+            );
+            if ($c) $c['grazing'] = campGrazingInfo($c['id'], $c['size_ha'], $c['stocking_ratio']);
             $c ? jsonSuccess($c) : jsonNotFound();
         }
         $where = ['c.is_active = 1']; $params = [];
@@ -25,6 +79,10 @@ switch ($method) {
              WHERE ' . implode(' AND ', $where) . ' ORDER BY c.name',
             $params
         );
+        foreach ($camps as &$c) {
+            $c['grazing'] = campGrazingInfo($c['id'], $c['size_ha'], $c['stocking_ratio']);
+        }
+        unset($c);
         jsonSuccess($camps);
 
     case 'POST':
@@ -34,8 +92,9 @@ switch ($method) {
         if (!$name) jsonError('Camp name is required.');
         if (empty($b['farm_id'])) jsonError('Farm is required.');
         $cid = DB::insert(
-            'INSERT INTO camps (uuid, farm_id, name, size_ha, notes, created_by) VALUES (?,?,?,?,?,?)',
-            [DB::uuid(), $b['farm_id'], $name, $b['size_ha'] ?: null, $b['notes'] ?? null, $user['id']]
+            'INSERT INTO camps (uuid, farm_id, name, size_ha, stocking_ratio, notes, created_by) VALUES (?,?,?,?,?,?,?)',
+            [DB::uuid(), $b['farm_id'], $name, $b['size_ha'] ?: null,
+             $b['stocking_ratio'] ?: null, $b['notes'] ?? null, $user['id']]
         );
         logActivity('camp', $cid, 'create', "Camp created: $name");
         jsonSuccess(['id' => $cid], 'Camp created', 201);
@@ -45,8 +104,8 @@ switch ($method) {
         if (!$id) jsonError('Missing ID.');
         $b = getJsonBody(); $name = trim($b['name'] ?? '');
         if (!$name) jsonError('Name required.');
-        DB::exec('UPDATE camps SET name=?, size_ha=?, notes=? WHERE id=?',
-            [$name, $b['size_ha'] ?: null, $b['notes'] ?? null, $id]);
+        DB::exec('UPDATE camps SET name=?, size_ha=?, stocking_ratio=?, notes=? WHERE id=?',
+            [$name, $b['size_ha'] ?: null, $b['stocking_ratio'] ?: null, $b['notes'] ?? null, $id]);
         logActivity('camp', $id, 'update', "Camp updated: $name");
         jsonSuccess(['id' => $id]);
 
