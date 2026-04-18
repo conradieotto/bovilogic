@@ -69,7 +69,10 @@ switch ($method) {
                  LEFT JOIN farms f ON f.id = c.farm_id WHERE c.id = ?',
                 [$id]
             );
-            if ($c) $c['grazing'] = campGrazingInfo($c['id'], $c['size_ha'], $c['stocking_ratio']);
+            if ($c) {
+            try { $c['grazing'] = campGrazingInfo($c['id'], $c['size_ha'], $c['stocking_ratio']); }
+            catch (Throwable $e) { $c['grazing'] = null; }
+        }
             $c ? jsonSuccess($c) : jsonNotFound();
         }
         $where = ['c.is_active = 1']; $params = [];
@@ -81,7 +84,11 @@ switch ($method) {
             $params
         );
         foreach ($camps as &$c) {
-            $c['grazing'] = campGrazingInfo($c['id'], $c['size_ha'], $c['stocking_ratio']);
+            try {
+                $c['grazing'] = campGrazingInfo($c['id'], $c['size_ha'], $c['stocking_ratio']);
+            } catch (Throwable $e) {
+                $c['grazing'] = null;
+            }
         }
         unset($c);
         jsonSuccess($camps);
