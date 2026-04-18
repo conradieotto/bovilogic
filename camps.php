@@ -263,7 +263,13 @@ async function saveCamp() {
 
   const method = id ? 'PUT' : 'POST';
   const url    = id ? `/api/camps.php?id=${id}` : '/api/camps.php';
-  const res    = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r=>r.json());
+  let res;
+  try {
+    res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r=>r.json());
+  } catch(err) {
+    alert('Save failed — please run migrate.php to update the database, then try again.');
+    return;
+  }
 
   if (!res.success) { alert(res.message || 'Error saving camp.'); return; }
 

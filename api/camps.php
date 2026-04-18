@@ -60,6 +60,7 @@ function campGrazingInfo($campId, $sizeHa, $stockingRatio) {
     ];
 }
 
+try {
 switch ($method) {
     case 'GET':
         if ($id) {
@@ -117,4 +118,13 @@ switch ($method) {
         jsonSuccess(null, 'Deleted');
 
     default: jsonError('Method not allowed', 405);
+}
+} catch (Throwable $e) {
+    ob_end_clean();
+    header('Content-Type: application/json');
+    // If column missing, give a helpful hint
+    if (str_contains($e->getMessage(), 'stocking_ratio') || str_contains($e->getMessage(), 'Unknown column')) {
+        jsonError('Database needs updating — please run migrate.php first.');
+    }
+    jsonError('Server error: ' . $e->getMessage());
 }
