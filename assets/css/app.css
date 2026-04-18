@@ -13,7 +13,7 @@
   /* Content */
   --content-bg:    #f0f4f8;
   --topbar-bg:     #ffffff;
-  --card-bg:       #ffffff;
+  --card-bg:       #FFF8F0;
   --card-shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
   --card-shadow-md:0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
 
@@ -432,7 +432,7 @@ p  { line-height: 1.6; }
   transition: background 0.1s;
 }
 .list-item:last-child { border-bottom: none; }
-.list-item:hover      { background: #f7fafc; }
+.list-item:hover      { background: #FFEFD8; }
 .list-item .item-icon {
   width: 40px; height: 40px;
   background: var(--blue-light);
