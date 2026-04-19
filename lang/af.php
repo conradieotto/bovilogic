@@ -42,7 +42,7 @@ return [
     'nav_reports'      => 'Verslae',
     'nav_more'         => 'Meer',
     'nav_summary'      => 'Opsomming',
-    'nav_alerts'       => 'Waarskuwings',
+    'nav_alerts'       => 'Waarskuwing',
     'nav_quick_actions'=> 'Vinnige Aksies',
     'nav_users'        => 'Gebruikers',
     'nav_activity'     => 'Aktiwiteitslog',
