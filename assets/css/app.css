@@ -1148,6 +1148,7 @@ tr:hover td { background: #f7fafc; }
     align-items: center;
     justify-content: center;
     gap: 3px;
+    padding: 0 4px;
     color: var(--sidebar-text);
     text-decoration: none;
     font-size: 0.625rem;
@@ -1156,6 +1157,13 @@ tr:hover td { background: #f7fafc; }
     text-transform: uppercase;
     transition: color 0.12s;
     -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }
+  .bottom-nav-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
   }
   .bottom-nav-item i {
     font-size: 1.2rem;
