@@ -364,6 +364,28 @@ return [
     'test_another_herd'    => 'Test Another Herd',
     'save_pregnancy_test'  => 'Save Pregnancy Test',
 
+    // Calf history page
+    'calf_history'         => 'Calf History',
+    'search_breeding_cow'  => 'Search Breeding Cow',
+    'type_ear_tag_ph'      => 'Type ear tag…',
+    'add_prev_calf'        => 'Add Previous Calf',
+    'new_prev_calf'        => 'New Previous Calf',
+    'save_calf'            => 'Save Calf',
+    'no_cows_found'        => 'No breeding cows found.',
+    'recorded_calves'      => 'Recorded calves',
+    'no_calves_yet'        => 'No calves recorded yet.',
+    'req_ear_tag'          => 'Ear tag is required.',
+    'req_dob'              => 'Date of birth is required.',
+    'req_sex'              => 'Please select the sex.',
+
+    // Calving calculator (quick-actions modal)
+    'calving_calculator'     => 'Calving Calculator',
+    'calving_due_calculator' => 'Calving Due Calculator',
+    'conception_date'        => 'Conception / Breeding Date',
+    'days_from_today'        => 'days from today',
+    'due_today'              => 'Due today!',
+    'days_overdue'           => 'days overdue',
+
     // Animal detail validation
     'pick_a_date'          => 'Please pick a date.',
     'weight_date_required' => 'Weight and date are required.',

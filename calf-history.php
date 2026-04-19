@@ -14,16 +14,16 @@ require_once __DIR__ . '/templates/header.php';
 
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-timeline"></i> Calf History</h1>
-  <a href="/quick-actions.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
+  <h1><i class="fa-solid fa-timeline"></i> <?= t('calf_history') ?></h1>
+  <a href="/quick-actions.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> <?= t('back') ?></a>
 </div>
 
 <div style="padding:16px">
 
   <!-- Cow Search -->
   <div class="form-group">
-    <label class="form-label">Search Breeding Cow <span class="required">*</span></label>
-    <input type="text" id="cow-search" class="form-control" placeholder="Type ear tag…" oninput="searchCow()" autocomplete="off">
+    <label class="form-label"><?= t('search_breeding_cow') ?> <span class="required">*</span></label>
+    <input type="text" id="cow-search" class="form-control" placeholder="<?= t('type_ear_tag_ph') ?>" oninput="searchCow()" autocomplete="off">
     <div id="cow-results" style="margin-top:6px"></div>
   </div>
 
@@ -36,14 +36,14 @@ require_once __DIR__ . '/templates/header.php';
             <div id="cow-tag" style="font-size:1.2rem;font-weight:700"></div>
             <div id="cow-meta" class="text-muted text-sm"></div>
           </div>
-          <button class="btn btn-secondary btn-sm" onclick="clearCow()">Change</button>
+          <button class="btn btn-secondary btn-sm" onclick="clearCow()"><?= t('change') ?></button>
         </div>
 
         <!-- Existing calves -->
         <div id="existing-calves" style="margin-top:12px"></div>
 
         <!-- Add calf button -->
-        <button class="btn btn-primary btn-full mt-12" onclick="openAddCalf()">+ Add Previous Calf</button>
+        <button class="btn btn-primary btn-full mt-12" onclick="openAddCalf()">+ <?= t('add_prev_calf') ?></button>
       </div>
     </div>
   </div>
@@ -52,43 +52,43 @@ require_once __DIR__ . '/templates/header.php';
   <div id="add-calf-form" style="display:none">
     <div class="card">
       <div class="card-body">
-        <h3 style="margin:0 0 16px;font-size:1rem">New Previous Calf</h3>
+        <h3 style="margin:0 0 16px;font-size:1rem"><?= t('new_prev_calf') ?></h3>
 
         <div class="form-group">
-          <label class="form-label">Ear Tag <span class="required">*</span></label>
+          <label class="form-label"><?= t('ear_tag') ?> <span class="required">*</span></label>
           <input type="text" id="c-tag" class="form-control" placeholder="e.g. BV-042">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Date of Birth <span class="required">*</span></label>
+          <label class="form-label"><?= t('dob') ?> <span class="required">*</span></label>
           <input type="date" id="c-dob" class="form-control">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Sex <span class="required">*</span></label>
+          <label class="form-label"><?= t('sex') ?> <span class="required">*</span></label>
           <div style="display:flex;gap:8px;margin-top:4px">
-            <button type="button" id="sex-bull" class="btn btn-secondary" onclick="setSex('male')">♂ Bull Calf</button>
-            <button type="button" id="sex-heifer" class="btn btn-secondary" onclick="setSex('female')">♀ Heifer Calf</button>
+            <button type="button" id="sex-bull" class="btn btn-secondary" onclick="setSex('male')">♂ <?= t('cat_bull_calf') ?></button>
+            <button type="button" id="sex-heifer" class="btn btn-secondary" onclick="setSex('female')">♀ <?= t('cat_heifer_calf') ?></button>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Breed</label>
-          <input type="text" id="c-breed" class="form-control" placeholder="Optional">
+          <label class="form-label"><?= t('breed') ?></label>
+          <input type="text" id="c-breed" class="form-control" placeholder="<?= t('none') ?>">
         </div>
 
         <div class="form-group">
-          <label class="form-label">Status <span class="required">*</span></label>
+          <label class="form-label"><?= t('status') ?> <span class="required">*</span></label>
           <div style="display:flex;gap:8px;margin-top:4px;flex-wrap:wrap">
-            <button type="button" id="st-active" class="btn btn-primary" onclick="setStatus('active')">Active</button>
-            <button type="button" id="st-sold"   class="btn btn-secondary" onclick="setStatus('sold')">Sold</button>
-            <button type="button" id="st-dead"   class="btn btn-secondary" onclick="setStatus('dead')">Dead</button>
+            <button type="button" id="st-active" class="btn btn-primary" onclick="setStatus('active')"><?= t('as_active') ?></button>
+            <button type="button" id="st-sold"   class="btn btn-secondary" onclick="setStatus('sold')"><?= t('as_sold') ?></button>
+            <button type="button" id="st-dead"   class="btn btn-secondary" onclick="setStatus('dead')"><?= t('as_dead') ?></button>
           </div>
         </div>
 
         <div style="display:flex;gap:8px;margin-top:8px">
-          <button class="btn btn-secondary" style="flex:1" onclick="cancelAddCalf()">Cancel</button>
-          <button class="btn btn-primary" style="flex:1" id="save-calf-btn" onclick="saveCalf()">Save Calf</button>
+          <button class="btn btn-secondary" style="flex:1" onclick="cancelAddCalf()"><?= t('cancel') ?></button>
+          <button class="btn btn-primary" style="flex:1" id="save-calf-btn" onclick="saveCalf()"><?= t('save_calf') ?></button>
         </div>
       </div>
     </div>
@@ -97,6 +97,18 @@ require_once __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+const T = <?= json_encode([
+  'no_cows_found'    => t('no_cows_found'),
+  'no_calves_yet'    => t('no_calves_yet'),
+  'recorded_calves'  => t('recorded_calves'),
+  'saving'           => t('saving'),
+  'save_calf'        => t('save_calf'),
+  'req_ear_tag'      => t('req_ear_tag'),
+  'req_dob'          => t('req_dob'),
+  'req_sex'          => t('req_sex'),
+  'error_saving'     => t('error_saving'),
+]) ?>;
+
 let selectedCow    = null;
 let selectedSex    = null;
 let selectedStatus = 'active';
@@ -112,7 +124,7 @@ function searchCow() {
       .then(res => {
         const cows = (res.data || []).filter(a => a.category === 'breeding_cow' || a.category === 'c_grade_cow');
         const el = document.getElementById('cow-results');
-        if (!cows.length) { el.innerHTML = '<p class="text-muted text-sm">No breeding cows found.</p>'; return; }
+        if (!cows.length) { el.innerHTML = `<p class="text-muted text-sm">${T.no_cows_found}</p>`; return; }
         el.innerHTML = '<div class="list-card">' + cows.slice(0, 8).map(a =>
           `<button class="list-item" style="width:100%;text-align:left;background:none;border:none;cursor:pointer"
             onclick="selectCow(${a.id}, '${escJs(a.ear_tag)}', '${escJs(a.herd_name||'')}', '${escJs(a.farm_name||'')}', '${escJs(a.breed||'')}')">
@@ -151,9 +163,9 @@ function loadExistingCalves(cowId) {
     .then(r => r.json())
     .then(res => {
       const el = document.getElementById('existing-calves');
-      if (!res.data?.length) { el.innerHTML = '<p class="text-muted text-sm" style="margin:0">No calves recorded yet.</p>'; return; }
+      if (!res.data?.length) { el.innerHTML = `<p class="text-muted text-sm" style="margin:0">${T.no_calves_yet}</p>`; return; }
       const ordinals = ['1st','2nd','3rd','4th','5th','6th','7th','8th','9th','10th'];
-      el.innerHTML = '<p class="text-xs text-muted" style="margin:0 0 6px">Recorded calves</p><div class="list-card">'
+      el.innerHTML = `<p class="text-xs text-muted" style="margin:0 0 6px">${T.recorded_calves}</p><div class="list-card">`
         + res.data.map((c, i) => {
             const sex = c.calf_sex === 'male' ? '♂' : c.calf_sex === 'female' ? '♀' : '';
             const link = c.calf_id
@@ -204,13 +216,13 @@ function saveCalf() {
   const dob   = document.getElementById('c-dob').value;
   const breed = document.getElementById('c-breed').value.trim();
 
-  if (!tag)         { alert('Ear tag is required.'); return; }
-  if (!dob)         { alert('Date of birth is required.'); return; }
-  if (!selectedSex) { alert('Please select the sex.'); return; }
+  if (!tag)         { alert(T.req_ear_tag); return; }
+  if (!dob)         { alert(T.req_dob);     return; }
+  if (!selectedSex) { alert(T.req_sex);     return; }
 
   const btn = document.getElementById('save-calf-btn');
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = T.saving;
 
   const category = selectedSex === 'male' ? 'bull_calf' : 'heifer_calf';
 
@@ -233,18 +245,18 @@ function saveCalf() {
     .then(r => r.json())
     .then(res => {
       btn.disabled = false;
-      btn.textContent = 'Save Calf';
+      btn.textContent = T.save_calf;
       if (res.success) {
         document.getElementById('add-calf-form').style.display = 'none';
         loadExistingCalves(selectedCow.id);
       } else {
-        alert(res.message || 'Error saving calf.');
+        alert(res.message || T.error_saving);
       }
     })
     .catch(err => {
       btn.disabled = false;
-      btn.textContent = 'Save Calf';
-      alert('Error: ' + err.message);
+      btn.textContent = T.save_calf;
+      alert(T.error_saving + ' ' + err.message);
     });
 }
 

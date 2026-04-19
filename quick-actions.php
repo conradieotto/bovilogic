@@ -42,7 +42,7 @@ require_once __DIR__ . '/templates/header.php';
 
   <a href="/calf-history.php" class="dash-btn">
     <svg viewBox="0 0 24 24"><path d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.954 8.954 0 0 0 13 21a9 9 0 0 0 0-18zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-    Calf History
+    <?= t('calf_history') ?>
   </a>
 
   <button class="dash-btn" onclick="toggleEventMenu()" id="btn-add-event">
@@ -67,7 +67,7 @@ require_once __DIR__ . '/templates/header.php';
 
   <button class="dash-btn" onclick="openModal('calving-calc-modal')">
     <svg viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
-    Calving Calculator
+    <?= t('calving_calculator') ?>
   </button>
 
 </div>
@@ -76,14 +76,14 @@ require_once __DIR__ . '/templates/header.php';
 <div class="modal-overlay" id="calving-calc-modal">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">Calving Due Calculator</div>
+    <div class="modal-title"><?= t('calving_due_calculator') ?></div>
     <div class="modal-body">
       <div class="form-group">
-        <label class="form-label">Conception / Breeding Date</label>
+        <label class="form-label"><?= t('conception_date') ?></label>
         <input type="date" id="calc-conception" class="form-control" oninput="calcCalvingDate()">
       </div>
       <div id="calc-result" style="display:none;margin-top:16px;padding:16px;background:#e8f5e9;border-radius:12px;text-align:center">
-        <div style="font-size:0.8rem;color:#555;margin-bottom:4px">Expected Calving Date</div>
+        <div style="font-size:0.8rem;color:#555;margin-bottom:4px"><?= t('expected_calving') ?></div>
         <div id="calc-due-date" style="font-size:1.6rem;font-weight:700;color:#2e7d32"></div>
         <div id="calc-days-left" style="font-size:0.85rem;color:#555;margin-top:4px"></div>
       </div>
@@ -118,6 +118,12 @@ require_once __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+const TC = <?= json_encode([
+  'days_from_today' => t('days_from_today'),
+  'due_today'       => t('due_today'),
+  'days_overdue'    => t('days_overdue'),
+]) ?>;
+
 function calcCalvingDate() {
   const val = document.getElementById('calc-conception').value;
   if (!val) { document.getElementById('calc-result').style.display = 'none'; return; }
@@ -127,8 +133,8 @@ function calcCalvingDate() {
   const daysLeft = Math.round((due - today) / 86400000);
   document.getElementById('calc-due-date').textContent = due.toLocaleDateString(undefined, {day:'numeric', month:'long', year:'numeric'});
   document.getElementById('calc-days-left').textContent = daysLeft > 0
-    ? `${daysLeft} days from today`
-    : daysLeft === 0 ? 'Due today!' : `${Math.abs(daysLeft)} days overdue`;
+    ? `${daysLeft} ${TC.days_from_today}`
+    : daysLeft === 0 ? TC.due_today : `${Math.abs(daysLeft)} ${TC.days_overdue}`;
   document.getElementById('calc-result').style.backgroundColor = daysLeft < 0 ? '#fff3cd' : '#e8f5e9';
   document.getElementById('calc-due-date').style.color = daysLeft < 0 ? '#e65100' : '#2e7d32';
   document.getElementById('calc-result').style.display = 'block';

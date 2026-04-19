@@ -363,6 +363,28 @@ return [
     'test_another_herd'    => 'Toets Nog \'n Trop',
     'save_pregnancy_test'  => 'Stoor Dragtigheidstoets',
 
+    // Calf history page
+    'calf_history'         => 'Kalf Geskiedenis',
+    'search_breeding_cow'  => 'Soek Teelkoei',
+    'type_ear_tag_ph'      => 'Tik oormerk…',
+    'add_prev_calf'        => 'Voeg Vorige Kalf By',
+    'new_prev_calf'        => 'Nuwe Vorige Kalf',
+    'save_calf'            => 'Stoor Kalf',
+    'no_cows_found'        => 'Geen teelkoeie gevind nie.',
+    'recorded_calves'      => 'Aangetekende kalwers',
+    'no_calves_yet'        => 'Nog geen kalwers aangeteken nie.',
+    'req_ear_tag'          => 'Oormerknommer is vereis.',
+    'req_dob'              => 'Geboortedatum is vereis.',
+    'req_sex'              => 'Kies asseblief die geslag.',
+
+    // Calving calculator (quick-actions modal)
+    'calving_calculator'     => 'Kalfkalkulator',
+    'calving_due_calculator' => 'Verwagte Kalwingsdatum',
+    'conception_date'        => 'Konsepsiedatum / Teeldatum',
+    'days_from_today'        => 'dae vanaf vandag',
+    'due_today'              => 'Verwagte vandag!',
+    'days_overdue'           => 'dae agterstallig',
+
     // Animal detail validation
     'pick_a_date'          => 'Kies asseblief \'n datum.',
     'weight_date_required' => 'Gewig en datum is vereis.',
