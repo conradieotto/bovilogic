@@ -198,7 +198,12 @@ fetch('/api/herds.php')
 // Load grazing history
 fetch(`/api/herd_movements.php?camp_id=${CAMP_ID}`)
   .then(r => r.json())
+  .catch(function() {
+    document.getElementById('history-content').innerHTML =
+      '<div class="list-card"><div style="padding:16px;color:var(--text-muted);font-size:0.875rem">Could not load history.</div></div>';
+  })
   .then(res => {
+    if (!res) return;
     const el = document.getElementById('history-content');
     if (!res.data?.length) {
       el.innerHTML = `<div class="list-card"><div style="padding:16px;color:var(--text-muted);font-size:0.875rem">${T.no_grazing_data}</div></div>`;

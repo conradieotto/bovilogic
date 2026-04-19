@@ -17,19 +17,36 @@ function campGrazingInfo($campId, $sizeHa, $stockingRatio) {
     $budget = ($sizeHa / $stockingRatio) * 365;
 
     // Animal-days used within rolling 12-month window
-    $used = (float)DB::val(
-        'SELECT COALESCE(SUM(
-            COALESCE(animal_count, 0) *
-            GREATEST(0, DATEDIFF(
-                COALESCE(date_out, CURDATE()),
-                GREATEST(date_in, DATE_SUB(CURDATE(), INTERVAL 1 YEAR))
-            ))
-         ), 0)
-         FROM herd_movements
-         WHERE camp_id = ?
-           AND COALESCE(date_out, CURDATE()) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
-        [$campId]
-    );
+    // Try with animal_count column; if column missing fall back to day-count only
+    try {
+        $used = (float)DB::val(
+            'SELECT COALESCE(SUM(
+                COALESCE(animal_count, 0) *
+                GREATEST(0, DATEDIFF(
+                    COALESCE(date_out, CURDATE()),
+                    GREATEST(date_in, DATE_SUB(CURDATE(), INTERVAL 1 YEAR))
+                ))
+             ), 0)
+             FROM herd_movements
+             WHERE camp_id = ?
+               AND COALESCE(date_out, CURDATE()) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
+            [$campId]
+        );
+    } catch (Throwable $e) {
+        // animal_count column not yet present — count plain days instead
+        $used = (float)DB::val(
+            'SELECT COALESCE(SUM(
+                GREATEST(0, DATEDIFF(
+                    COALESCE(date_out, CURDATE()),
+                    GREATEST(date_in, DATE_SUB(CURDATE(), INTERVAL 1 YEAR))
+                ))
+             ), 0)
+             FROM herd_movements
+             WHERE camp_id = ?
+               AND COALESCE(date_out, CURDATE()) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
+            [$campId]
+        );
+    }
 
     $remaining = max(0.0, $budget - $used);
     $pctUsed   = $budget > 0 ? min(100, round($used / $budget * 100)) : 0;

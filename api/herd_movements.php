@@ -3,8 +3,10 @@ require_once __DIR__ . '/../lib/auth.php';
 require_once __DIR__ . '/../lib/db.php';
 require_once __DIR__ . '/../lib/response.php';
 
+ob_start();
 header('Content-Type: application/json');
 apiRequireLogin();
+try {
 
 $campId = (int)($_GET['camp_id'] ?? 0);
 if (!$campId) jsonError('camp_id required.');
@@ -31,3 +33,8 @@ foreach ($rows as &$row) {
 unset($row);
 
 jsonSuccess($rows);
+} catch (Throwable $e) {
+    ob_end_clean();
+    header('Content-Type: application/json');
+    jsonError('Server error: ' . $e->getMessage());
+}
