@@ -14,19 +14,19 @@ require_once __DIR__ . '/templates/header.php';
 
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-cart-plus"></i> Add Purchase</h1>
-  <a href="/quick-actions.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
+  <h1><i class="fa-solid fa-cart-plus"></i> <?= t('add_purchase') ?></h1>
+  <a href="/quick-actions.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> <?= t('back') ?></a>
 </div>
 
 <div style="padding:16px;">
 
   <div class="form-group">
-    <label class="form-label">Date Purchased <span class="required">*</span></label>
+    <label class="form-label"><?= t('purchase_date') ?> <span class="required">*</span></label>
     <input type="date" id="p-date" class="form-control" value="<?= date('Y-m-d') ?>">
   </div>
 
   <div class="form-group">
-    <label class="form-label">Purchase Price (ZAR) <span class="required">*</span></label>
+    <label class="form-label"><?= t('purchase_price_zar') ?> <span class="required">*</span></label>
     <div style="position:relative">
       <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-weight:600">R</span>
       <input type="number" id="p-price" class="form-control" step="0.01" min="0" placeholder="0.00" style="padding-left:28px">
@@ -34,48 +34,62 @@ require_once __DIR__ . '/templates/header.php';
   </div>
 
   <div class="form-group">
-    <label class="form-label">Seller <span class="required">*</span></label>
-    <input type="text" id="p-seller" class="form-control" placeholder="Seller name or business">
+    <label class="form-label"><?= t('seller') ?> <span class="required">*</span></label>
+    <input type="text" id="p-seller" class="form-control" placeholder="<?= t('seller_ph') ?>">
   </div>
 
   <div class="form-group">
-    <label class="form-label">Animal Category <span class="required">*</span></label>
+    <label class="form-label"><?= t('category') ?> <span class="required">*</span></label>
     <div id="cat-list" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px"></div>
   </div>
 
   <div class="form-group">
-    <label class="form-label">Total Purchased <span class="required">*</span></label>
+    <label class="form-label"><?= t('total_purchased_label') ?> <span class="required">*</span></label>
     <input type="number" id="p-total" class="form-control" min="1" placeholder="e.g. 10">
   </div>
 
   <div class="form-group">
-    <label class="form-label">New Ear Tag Numbers</label>
-    <input type="text" id="tag-search" class="form-control" placeholder="Search ear tag to add..." oninput="searchTags()">
+    <label class="form-label"><?= t('new_ear_tags') ?></label>
+    <input type="text" id="tag-search" class="form-control" placeholder="<?= t('tag_search_ph') ?>" oninput="searchTags()">
     <div id="tag-results" style="margin-top:6px"></div>
     <div id="tag-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
   </div>
 
-  <button class="btn btn-primary btn-full btn-lg" id="save-btn" onclick="savePurchase()">Save Purchase</button>
+  <button class="btn btn-primary btn-full btn-lg" id="save-btn" onclick="savePurchase()"><?= t('save_purchase') ?></button>
   <div id="save-result" style="margin-top:16px"></div>
 
 </div>
 
 <script>
 const CATEGORIES = [
-  {val:'breeding_bull',      label:'Breeding Bull'},
-  {val:'breeding_cow',       label:'Breeding Cow'},
-  {val:'c_grade_cow',        label:'C-grade Cow'},
-  {val:'bull_calf',          label:'Bull Calf'},
-  {val:'heifer_calf',        label:'Heifer Calf'},
-  {val:'weaner',             label:'Weaner'},
-  {val:'replacement_heifer', label:'Replacement Heifer'},
+  {val:'breeding_bull',      label:<?= json_encode(t('cat_breeding_bull')) ?>},
+  {val:'breeding_cow',       label:<?= json_encode(t('cat_breeding_cow')) ?>},
+  {val:'c_grade_cow',        label:<?= json_encode(t('cat_c_grade_cow')) ?>},
+  {val:'bull_calf',          label:<?= json_encode(t('cat_bull_calf')) ?>},
+  {val:'heifer_calf',        label:<?= json_encode(t('cat_heifer_calf')) ?>},
+  {val:'weaner',             label:<?= json_encode(t('cat_weaner')) ?>},
+  {val:'replacement_heifer', label:<?= json_encode(t('cat_replacement_heifer')) ?>},
 ];
+
+const T = <?= json_encode([
+  'no_animals_found'    => t('no_animals_found'),
+  'saving'              => t('saving'),
+  'purchase_saved'      => t('purchase_saved'),
+  'save_purchase'       => t('save_purchase'),
+  'add_another'         => t('add_another'),
+  'quick_actions'       => t('nav_quick_actions'),
+  'req_select_date'     => t('req_select_date'),
+  'req_purchase_price'  => t('req_purchase_price'),
+  'req_seller_name'     => t('req_seller_name'),
+  'req_category'        => t('req_category'),
+  'req_total_purchased' => t('req_total_purchased'),
+  'error_saving'        => t('error_saving'),
+]) ?>;
 
 let selectedCategory = null;
 let selectedTags = [];
 let tagTimer = null;
 
-// Render category chips
 document.getElementById('cat-list').innerHTML = CATEGORIES.map(c =>
   `<button type="button" class="btn btn-secondary btn-sm" id="cat-${c.val}" onclick="selectCat('${c.val}')">${c.label}</button>`
 ).join('');
@@ -97,7 +111,7 @@ function searchTags() {
       .then(r => r.json())
       .then(res => {
         const el = document.getElementById('tag-results');
-        if (!res.data?.length) { el.innerHTML = '<p class="text-muted text-sm">No animals found.</p>'; return; }
+        if (!res.data?.length) { el.innerHTML = `<p class="text-muted text-sm">${T.no_animals_found}</p>`; return; }
         el.innerHTML = '<div class="list-card">' + res.data.slice(0, 8).map(a =>
           `<button class="list-item" data-id="${a.id}" data-tag="${escHtml(a.ear_tag)}" onclick="addTagFromBtn(this)"
             style="cursor:pointer;width:100%;text-align:left;background:none;border:none;">
@@ -140,15 +154,15 @@ async function savePurchase() {
   const seller = document.getElementById('p-seller').value.trim();
   const total  = document.getElementById('p-total').value;
 
-  if (!date)             { alert('Please select a date.'); return; }
-  if (!price)            { alert('Please enter a purchase price.'); return; }
-  if (!seller)           { alert('Please enter a seller name.'); return; }
-  if (!selectedCategory) { alert('Please select an animal category.'); return; }
-  if (!total)            { alert('Please enter the total purchased.'); return; }
+  if (!date)             { alert(T.req_select_date);    return; }
+  if (!price)            { alert(T.req_purchase_price); return; }
+  if (!seller)           { alert(T.req_seller_name);    return; }
+  if (!selectedCategory) { alert(T.req_category);       return; }
+  if (!total)            { alert(T.req_total_purchased); return; }
 
   const btn = document.getElementById('save-btn');
   btn.disabled = true;
-  btn.textContent = 'Saving…';
+  btn.textContent = T.saving;
 
   try {
     const res = await fetch('/api/purchases.php', {
@@ -165,25 +179,25 @@ async function savePurchase() {
     }).then(r => r.json());
 
     if (res.success) {
-      document.querySelector('.btn-primary.btn-full').style.display = 'none';
+      document.getElementById('save-btn').style.display = 'none';
       document.getElementById('save-result').innerHTML = `
         <div class="card" style="text-align:center;padding:24px">
           <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:var(--green);margin-bottom:12px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14l-4-4 1.41-1.41L10 13.17l6.59-6.59L18 8l-8 8z"/></svg>
-          <h3>Purchase saved!</h3>
+          <h3>${T.purchase_saved}</h3>
           <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="location.reload()">Add Another</button>
-            <a href="/quick-actions.php" class="btn btn-secondary">Quick Actions</a>
+            <button class="btn btn-primary" onclick="location.reload()">${T.add_another}</button>
+            <a href="/quick-actions.php" class="btn btn-secondary">${T.quick_actions}</a>
           </div>
         </div>`;
     } else {
-      alert(res.message || 'Error saving purchase.');
+      alert(res.message || T.error_saving);
       btn.disabled = false;
-      btn.textContent = 'Save Purchase';
+      btn.textContent = T.save_purchase;
     }
   } catch(e) {
-    alert('Error: ' + e.message);
+    alert(T.error_saving + ' ' + e.message);
     btn.disabled = false;
-    btn.textContent = 'Save Purchase';
+    btn.textContent = T.save_purchase;
   }
 }
 

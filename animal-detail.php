@@ -270,6 +270,14 @@ const T = <?= json_encode([
   'ev_weaning'         => t('ev_weaning'),
   'ev_other'           => t('ev_other'),
   'pregnancy_test'     => t('pregnancy_test'),
+  'save'               => t('save'),
+  'cancel'             => t('cancel'),
+  'pick_a_date'        => t('pick_a_date'),
+  'weight_date_required'=> t('weight_date_required'),
+  'product_due_required'=> t('product_due_required'),
+  'product_date_required'=> t('product_date_required'),
+  'type_date_required' => t('type_date_required'),
+  'error_saving'       => t('error_saving'),
 ]) ?>;
 
 // Tabs
@@ -433,9 +441,9 @@ function loadCalving() {
               <input type="date" id="calving-date-${c.id}" value="${c.calving_date}"
                 style="padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:0.85rem">
               <button onclick="saveCalvingDate(${c.id},'${c.calving_date}')"
-                style="margin-left:6px;padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer">Save</button>
+                style="margin-left:6px;padding:4px 10px;background:var(--green);color:#fff;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer">${T.save}</button>
               <button onclick="cancelCalvingEdit(${c.id})"
-                style="margin-left:4px;padding:4px 10px;background:#eee;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer">Cancel</button>
+                style="margin-left:4px;padding:4px 10px;background:#eee;border:none;border-radius:6px;font-size:0.85rem;cursor:pointer">${T.cancel}</button>
             </div>
           </div>
           <button onclick="toggleCalvingEdit(${c.id})" title="Edit date"
@@ -458,7 +466,7 @@ function cancelCalvingEdit(id) {
 
 function saveCalvingDate(id, original) {
   const date = document.getElementById('calving-date-' + id).value;
-  if (!date) { alert('Please pick a date.'); return; }
+  if (!date) { alert(T.pick_a_date); return; }
   fetch(`/api/calving.php?id=${id}`, {
     method: 'PUT',
     headers: {'Content-Type':'application/json'},
@@ -470,7 +478,7 @@ function saveCalvingDate(id, original) {
         document.getElementById('calving-edit-' + id).style.display = 'none';
         loadCalving(); // refresh the list
       } else {
-        alert(res.message || 'Error saving date.');
+        alert(res.message || T.error_saving);
       }
     });
 }
@@ -504,7 +512,7 @@ function saveWeight() {
   const kg     = document.getElementById('w-kg').value;
   const date   = document.getElementById('w-date').value;
   const editId = document.getElementById('weight-modal').dataset.editId;
-  if (!kg || !date) { alert('Weight and date are required.'); return; }
+  if (!kg || !date) { alert(T.weight_date_required); return; }
   const method = editId ? 'PUT' : 'POST';
   const url    = editId ? `/api/weights.php?id=${editId}` : '/api/weights.php';
   const body   = editId
@@ -524,7 +532,7 @@ function saveWeight() {
 function saveVaccination() {
   const product = document.getElementById('v-product').value.trim();
   const due     = document.getElementById('v-due').value;
-  if (!product || !due) { alert('Product and due date are required.'); return; }
+  if (!product || !due) { alert(T.product_due_required); return; }
   fetch('/api/vaccinations.php', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -538,7 +546,7 @@ function saveVaccination() {
 function saveTreatment() {
   const product = document.getElementById('t-product').value.trim();
   const date    = document.getElementById('t-date').value;
-  if (!product || !date) { alert('Product and date are required.'); return; }
+  if (!product || !date) { alert(T.product_date_required); return; }
   fetch('/api/treatments.php', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
@@ -552,7 +560,7 @@ function saveTreatment() {
 function saveEvent() {
   const type = document.getElementById('ev-type').value;
   const date = document.getElementById('ev-date').value;
-  if (!type || !date) { alert('Type and date are required.'); return; }
+  if (!type || !date) { alert(T.type_date_required); return; }
   fetch('/api/events.php', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
