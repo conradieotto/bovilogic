@@ -325,7 +325,7 @@ return [
     'stocking_rate_hint'=> 'bv. 1:10 = 1 dier per 10 ha per jaar',
     'ha_per_animal'    => 'ha / dier / jaar',
     'grazing_budget'   => 'Begroting',
-    'used_12m'         => 'Gebruik (12 maande)',
+    'used_12m'         => 'Gebruik (Okt – Sep)',
     'grazing_remaining'=> 'Oorbly',
     'days_left'        => 'dae oor',
     'move_out_by'      => 'Skuif uit teen',

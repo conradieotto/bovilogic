@@ -19,18 +19,26 @@ function campGrazingInfo($campId, $sizeHa, $stockingRatio) {
 
     $budget = ($sizeHa / $stockingRatio) * 365;
 
-    // Try to get animal-days used from movement history — any failure defaults to 0
+    // Season runs 1 Oct – 30 Sep each year
+    $m           = (int)date('m');
+    $y           = (int)date('Y');
+    $seasonStart = ($m >= 10 ? $y : $y - 1) . '-10-01';
+
+    // Try to get animal-days used within this season — any failure defaults to 0
     $used = 0.0;
     try {
         $val = DB::val(
             'SELECT COALESCE(SUM(
                 COALESCE(animal_count, 1) *
-                GREATEST(0, DATEDIFF(COALESCE(date_out, CURDATE()), date_in))
+                GREATEST(0, DATEDIFF(
+                    COALESCE(date_out, CURDATE()),
+                    GREATEST(date_in, ?)
+                ))
              ), 0)
              FROM herd_movements
              WHERE camp_id = ?
-               AND date_in >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
-            [$campId]
+               AND COALESCE(date_out, CURDATE()) >= ?',
+            [$seasonStart, $campId, $seasonStart]
         );
         $used = (float)$val;
     } catch (Throwable $e) {

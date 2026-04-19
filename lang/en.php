@@ -326,7 +326,7 @@ return [
     'stocking_rate_hint'=> 'e.g. 1:10 = 1 animal per 10 ha per year',
     'ha_per_animal'    => 'ha / animal / year',
     'grazing_budget'   => 'Budget',
-    'used_12m'         => 'Used (12 months)',
+    'used_12m'         => 'Used (Oct – Sep)',
     'grazing_remaining'=> 'Remaining',
     'days_left'        => 'days left',
     'move_out_by'      => 'Move out by',
