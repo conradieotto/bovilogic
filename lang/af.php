@@ -363,6 +363,26 @@ return [
     'test_another_herd'    => 'Toets Nog \'n Trop',
     'save_pregnancy_test'  => 'Stoor Dragtigheidstoets',
 
+    // Add vaccination page
+    'vacc_apply_to'      => 'Pas entstof toe op:',
+    'by_herd'            => 'Per Trop',
+    'apply_herd_sub'     => 'Pas toe op alle diere in \'n trop',
+    'all_animals_label'  => 'Alle Diere',
+    'apply_all_sub'      => 'Pas toe op elke aktiewe dier',
+    'choose_herd_ph'     => '– Kies trop –',
+    'change_scope'       => 'Verander omvang',
+    'save_vaccination'   => 'Stoor Entstof',
+    'req_select_herd'    => 'Kies asseblief \'n trop.',
+    'no_active_in_herd'  => 'Geen aktiewe diere in hierdie trop nie.',
+    'no_active_animals'  => 'Geen aktiewe diere gevind nie.',
+    'vacc_added_to'      => 'Entstof toegepas op',
+    'animals_in_herd'    => 'diere in hierdie trop',
+
+    // Activity log
+    'act_create'         => 'Gevoeg',
+    'act_update'         => 'Verander',
+    'act_delete'         => 'Verwyder',
+
     // Calf history page
     'calf_history'         => 'Kalf Geskiedenis',
     'search_breeding_cow'  => 'Soek Teelkoei',

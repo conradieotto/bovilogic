@@ -24,7 +24,7 @@ if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 // ─── Application ─────────────────────────────────────────────────────────────
 if (!defined('APP_NAME'))    define('APP_NAME',    'BoviLogic');
 if (!defined('APP_URL'))     define('APP_URL',     getenv('APP_URL') ?: 'http://bovilogic.test');
-if (!defined('APP_VERSION')) define('APP_VERSION', '1.3.8');
+if (!defined('APP_VERSION')) define('APP_VERSION', '1.3.9');
 if (!defined('APP_ROOT'))    define('APP_ROOT',    dirname(__DIR__));
 
 // ─── Session ─────────────────────────────────────────────────────────────────

@@ -364,6 +364,26 @@ return [
     'test_another_herd'    => 'Test Another Herd',
     'save_pregnancy_test'  => 'Save Pregnancy Test',
 
+    // Add vaccination page
+    'vacc_apply_to'      => 'Apply vaccination to:',
+    'by_herd'            => 'By Herd',
+    'apply_herd_sub'     => 'Apply to all animals in a herd',
+    'all_animals_label'  => 'All Animals',
+    'apply_all_sub'      => 'Apply to every active animal',
+    'choose_herd_ph'     => '– Choose herd –',
+    'change_scope'       => 'Change scope',
+    'save_vaccination'   => 'Save Vaccination',
+    'req_select_herd'    => 'Please select a herd.',
+    'no_active_in_herd'  => 'No active animals in this herd.',
+    'no_active_animals'  => 'No active animals found.',
+    'vacc_added_to'      => 'Vaccination added to',
+    'animals_in_herd'    => 'animals in this herd',
+
+    // Activity log
+    'act_create'         => 'Added',
+    'act_update'         => 'Updated',
+    'act_delete'         => 'Deleted',
+
     // Calf history page
     'calf_history'         => 'Calf History',
     'search_breeding_cow'  => 'Search Breeding Cow',
