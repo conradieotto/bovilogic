@@ -99,6 +99,23 @@ require_once __DIR__ . '/templates/header.php';
   <?php endif; ?>
 
   <div class="card mt-16">
+    <div class="card-header"><h3><?= t('language') ?></h3></div>
+    <div class="card-body">
+      <form method="POST" action="/language.php">
+        <div style="display:flex;gap:12px;margin-bottom:12px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:<?= $user['language']==='en'?'700':'400' ?>">
+            <input type="radio" name="language" value="en" <?= $user['language']==='en'?'checked':'' ?>> English
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:<?= $user['language']==='af'?'700':'400' ?>">
+            <input type="radio" name="language" value="af" <?= $user['language']==='af'?'checked':'' ?>> Afrikaans
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm"><?= t('save') ?></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mt-16">
     <div class="card-header"><h3>PWA / Install</h3></div>
     <div class="card-body">
       <p class="text-muted text-sm mb-12">Add BoviLogic to your home screen for the best experience.</p>
