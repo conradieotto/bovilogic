@@ -13,51 +13,45 @@ $farmId = (int)($_GET['farm_id'] ?? 0);
 
 // Compute grazing budget/used/remaining for a camp
 function campGrazingInfo($campId, $sizeHa, $stockingRatio) {
-    if (!$stockingRatio || !$sizeHa) return null;
+    $sizeHa        = (float)$sizeHa;
+    $stockingRatio = (float)$stockingRatio;
+    if ($stockingRatio <= 0 || $sizeHa <= 0) return null;
+
     $budget = ($sizeHa / $stockingRatio) * 365;
 
-    // Animal-days used within rolling 12-month window
-    // Try with animal_count column; if column missing fall back to day-count only
+    // Try to get animal-days used from movement history — any failure defaults to 0
+    $used = 0.0;
     try {
-        $used = (float)DB::val(
+        $val = DB::val(
             'SELECT COALESCE(SUM(
-                COALESCE(animal_count, 0) *
-                GREATEST(0, DATEDIFF(
-                    COALESCE(date_out, CURDATE()),
-                    GREATEST(date_in, DATE_SUB(CURDATE(), INTERVAL 1 YEAR))
-                ))
+                COALESCE(animal_count, 1) *
+                GREATEST(0, DATEDIFF(COALESCE(date_out, CURDATE()), date_in))
              ), 0)
              FROM herd_movements
              WHERE camp_id = ?
-               AND COALESCE(date_out, CURDATE()) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
+               AND date_in >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
             [$campId]
         );
+        $used = (float)$val;
     } catch (Throwable $e) {
-        // animal_count column not yet present — count plain days instead
-        $used = (float)DB::val(
-            'SELECT COALESCE(SUM(
-                GREATEST(0, DATEDIFF(
-                    COALESCE(date_out, CURDATE()),
-                    GREATEST(date_in, DATE_SUB(CURDATE(), INTERVAL 1 YEAR))
-                ))
-             ), 0)
-             FROM herd_movements
-             WHERE camp_id = ?
-               AND COALESCE(date_out, CURDATE()) >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR)',
-            [$campId]
-        );
+        $used = 0.0;
     }
 
     $remaining = max(0.0, $budget - $used);
     $pctUsed   = $budget > 0 ? min(100, round($used / $budget * 100)) : 0;
 
     // Current active animal count in this camp
-    $currentAnimals = (int)DB::val(
-        'SELECT COUNT(a.id) FROM herds h
-         LEFT JOIN animals a ON a.herd_id = h.id AND a.animal_status = \'active\'
-         WHERE h.camp_id = ? AND h.is_active = 1',
-        [$campId]
-    );
+    $currentAnimals = 0;
+    try {
+        $currentAnimals = (int)DB::val(
+            'SELECT COUNT(a.id) FROM herds h
+             LEFT JOIN animals a ON a.herd_id = h.id AND a.animal_status = \'active\'
+             WHERE h.camp_id = ? AND h.is_active = 1',
+            [$campId]
+        );
+    } catch (Throwable $e) {
+        $currentAnimals = 0;
+    }
 
     $daysLeft  = null;
     $moveOutBy = null;
