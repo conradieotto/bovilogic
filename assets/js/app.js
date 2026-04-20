@@ -136,6 +136,15 @@ window.apiFetch = async function(url, options = {}) {
       window.location = '/login.php';
       return null;
     }
+    // Guard: if server returned non-JSON (e.g. cPanel error page), treat as auth failure
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
+      if (res.status >= 400) {
+        window.location = '/login.php';
+        return null;
+      }
+      return { success: false, message: 'Unexpected server response.' };
+    }
     return await res.json();
   } catch (err) {
     console.warn('[API] Network error:', err);
