@@ -165,6 +165,11 @@ switch ($method) {
             }
         }
 
+        // Keep animals in sync with the herd's farm when the farm changes
+        if ($newFarmId != ($oldHerd['farm_id'] ?? null)) {
+            DB::exec('UPDATE animals SET farm_id = ? WHERE herd_id = ?', [$newFarmId, $id]);
+        }
+
         if ($newCampId != ($oldHerd['camp_id'] ?? null)) {
             try {
                 $animalCount = (int)DB::val(
