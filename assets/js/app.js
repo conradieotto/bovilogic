@@ -132,20 +132,19 @@ window.apiFetch = async function(url, options = {}) {
       headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       ...options,
     });
-    if (res.status === 401) {
+    // If server returned non-JSON (e.g. cPanel error page), redirect to login
+    const ct = res.headers.get('content-type') || '';
+    if (!ct.includes('application/json')) {
       window.location = '/login.php';
       return null;
     }
-    // Guard: if server returned non-JSON (e.g. cPanel error page), treat as auth failure
-    const ct = res.headers.get('content-type') || '';
-    if (!ct.includes('application/json')) {
-      if (res.status >= 400) {
-        window.location = '/login.php';
-        return null;
-      }
-      return { success: false, message: 'Unexpected server response.' };
+    const data = await res.json();
+    // API always returns HTTP 200; auth failures have code:401 in the JSON body
+    if (data && data.code === 401) {
+      window.location = '/login.php';
+      return null;
     }
-    return await res.json();
+    return data;
   } catch (err) {
     console.warn('[API] Network error:', err);
     return { success: false, message: 'Network error – working offline.' };

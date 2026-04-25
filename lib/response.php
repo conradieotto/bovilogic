@@ -13,9 +13,11 @@ function jsonSuccess(mixed $data = null, string $message = 'OK', int $code = 200
 
 function jsonError(string $message = 'Error', int $code = 400, mixed $errors = null): never {
     if (ob_get_level()) ob_end_clean();
-    http_response_code($code);
+    // Always send HTTP 200 so cPanel/Apache cannot intercept and replace our JSON
+    // with its own HTML error page. The real status code lives in the 'code' field.
+    http_response_code(200);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['success' => false, 'message' => $message, 'errors' => $errors], JSON_UNESCAPED_UNICODE);
+    echo json_encode(['success' => false, 'code' => $code, 'message' => $message, 'errors' => $errors], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
