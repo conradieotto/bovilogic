@@ -63,7 +63,7 @@ switch ($type) {
         try {
             $newborns = DB::rows(
                 "SELECT a.id, a.ear_tag, a.dob, a.breed, a.sex, a.category,
-                        m.ear_tag AS dam_tag
+                        m.id AS dam_id, m.ear_tag AS dam_tag
                  FROM animals a
                  LEFT JOIN animals m ON m.id = a.mother_id
                  WHERE a.category IN ('bull_calf','heifer_calf') AND a.dob BETWEEN ? AND ?

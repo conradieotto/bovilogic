@@ -102,6 +102,7 @@ const T = <?= json_encode([
   'cat_weaner'             => t('cat_weaner'),
   'cat_replacement_heifer' => t('cat_replacement_heifer'),
   'bs_pregnant'            => t('bs_pregnant'),
+  'calf_single'            => t('calf_single'),
 ]) ?>;
 
 const CAT_LABELS = {
@@ -149,7 +150,7 @@ fetch('/api/dashboard.php')
           return `<a href="/animal-detail.php?id=${a.id}" class="list-item">
             <div class="item-body">
               <div class="item-title">${escHtml(a.ear_tag)}</div>
-              <div class="item-sub">${due ? T.expected_label + ': ' + due.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}) : T.no_breeding_date}</div>
+              <div class="item-sub">${due ? T.expected_label + ': ' + due.toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}) : T.no_breeding_date}${a.herd_name ? ' · ' + escHtml(a.herd_name) : ''}</div>
             </div>
             ${daysLeft !== null ? `<span style="font-size:12px;font-weight:700;color:${color}">${daysLeft > 0 ? daysLeft+'d' : T.overdue}</span>` : ''}
             <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
@@ -239,15 +240,19 @@ function loadMonthly() {
           </h2>
         </div>
         <div id="${bornId}" class="list-card list-card-inset" style="margin:0 16px 16px;display:none">
-          ${newborns.map(a=>`
-            <a href="/animal-detail.php?id=${a.id}" class="list-item">
+          ${newborns.map(a=>{
+            const href  = a.dam_id ? `/animal-detail.php?id=${a.dam_id}` : `/animal-detail.php?id=${a.id}`;
+            const title = a.dam_tag ? escHtml(a.dam_tag) : escHtml(a.ear_tag);
+            const sub   = `${T.calf_single}: ${escHtml(a.ear_tag)} · ${catLabel(a.category)} · ${a.dob}`;
+            return `<a href="${href}" class="list-item">
               <div class="item-body">
-                <div class="item-title">${escHtml(a.ear_tag)}</div>
-                <div class="item-sub">${catLabel(a.category)}${a.dam_tag ? ' · Dam: '+escHtml(a.dam_tag) : ''} · ${a.dob}</div>
+                <div class="item-title">${title}</div>
+                <div class="item-sub">${sub}</div>
               </div>
               <span style="font-size:11px;font-weight:700;color:#2e7d32;background:#e8f5e9;padding:2px 8px;border-radius:20px">${T.born_label.toUpperCase()}</span>
               <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            </a>`).join('')}
+            </a>`;
+          }).join('')}
         </div>`;
       }
 
@@ -392,15 +397,19 @@ function loadMonthlyReport() {
         ${newborns.length ? `
         <div class="section-header"><h2>${T.born_in} ${monthLabel} (${newborns.length})</h2></div>
         <div class="list-card list-card-inset mb-16" style="margin:0 16px 16px">
-          ${newborns.map(a=>`
-            <a href="/animal-detail.php?id=${a.id}" class="list-item">
+          ${newborns.map(a=>{
+            const href  = a.dam_id ? `/animal-detail.php?id=${a.dam_id}` : `/animal-detail.php?id=${a.id}`;
+            const title = a.dam_tag ? escHtml(a.dam_tag) : escHtml(a.ear_tag);
+            const sub   = `${T.calf_single}: ${escHtml(a.ear_tag)} · ${escHtml(catLabel(a.category))} · ${a.dob}`;
+            return `<a href="${href}" class="list-item">
               <div class="item-body">
-                <div class="item-title">${escHtml(a.ear_tag)}</div>
-                <div class="item-sub">${escHtml(catLabel(a.category))}${a.dam_tag?' · Dam: '+escHtml(a.dam_tag):''} · ${a.dob}</div>
+                <div class="item-title">${title}</div>
+                <div class="item-sub">${sub}</div>
               </div>
               <span style="font-size:11px;font-weight:700;color:#2e7d32;background:#e8f5e9;padding:2px 8px;border-radius:20px">${T.born_label.toUpperCase()}</span>
               <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            </a>`).join('')}
+            </a>`;
+          }).join('')}
         </div>` : ''}
 
         ${dead.length ? `
