@@ -59,7 +59,7 @@ return [
     'recent_activity'  => 'Onlangse Aktiwiteit',
     'total_animals'    => 'Totale Diere',
     'farm_totals'      => 'Plaas Totale',
-    'vaccines_due'     => 'Ontstowwe Verskuldig',
+    'vaccines_due'     => 'Entstowwe Verskuldig',
     'vaccines_overdue' => 'Entstowwe Verskuldig',
     'born_label'       => 'Gebore',
     'upcoming_calvings'=> 'Aanstaande Kalwings',
