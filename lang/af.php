@@ -4,6 +4,7 @@ return [
     'app_name'         => 'BoviLogic',
     'save'             => 'Stoor',
     'cancel'           => 'Kanselleer',
+    'close'            => 'Maak toe',
     'delete'           => 'Verwyder',
     'edit'             => 'Wysig',
     'add'              => 'Voeg by',

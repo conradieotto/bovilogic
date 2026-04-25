@@ -89,7 +89,7 @@ require_once __DIR__ . '/templates/header.php';
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-secondary btn-full" onclick="closeModal('calving-calc-modal');document.getElementById('calc-conception').value='';document.getElementById('calc-result').style.display='none'">Close</button>
+      <button class="btn btn-secondary btn-full" onclick="closeModal('calving-calc-modal');document.getElementById('calc-conception').value='';document.getElementById('calc-result').style.display='none'"><?= t('close') ?></button>
     </div>
   </div>
 </div>
@@ -122,6 +122,7 @@ const TC = <?= json_encode([
   'days_from_today' => t('days_from_today'),
   'due_today'       => t('due_today'),
   'days_overdue'    => t('days_overdue'),
+  'close'           => t('close'),
 ]) ?>;
 
 function calcCalvingDate() {

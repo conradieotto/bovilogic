@@ -4,6 +4,7 @@ return [
     'app_name'         => 'BoviLogic',
     'save'             => 'Save',
     'cancel'           => 'Cancel',
+    'close'            => 'Close',
     'delete'           => 'Delete',
     'edit'             => 'Edit',
     'add'              => 'Add',
