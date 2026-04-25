@@ -17,15 +17,15 @@ require_once __DIR__ . '/templates/header.php';
 
 <div class="page-wrap">
 <div class="page-header">
-  <h1><i class="fa-solid fa-truck-moving"></i> Move Herd</h1>
-  <a href="/quick-actions.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
+  <h1><i class="fa-solid fa-truck-moving"></i> <?= t('move_herd') ?></h1>
+  <a href="/quick-actions.php" class="btn btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> <?= t('back') ?></a>
 </div>
 
 <div style="padding:16px">
 
   <!-- Step 1: Choose herd -->
   <div id="step-herd">
-    <p class="text-muted text-sm" style="margin-bottom:12px">Step 1 of 4 — Select a herd</p>
+    <p class="text-muted text-sm" style="margin-bottom:12px"><?= t('step_1_select_herd') ?></p>
     <div id="herd-loading" class="page-loader" style="min-height:120px"><div class="spinner"></div></div>
     <div id="herd-list" style="display:none" class="list-card"></div>
   </div>
@@ -33,10 +33,10 @@ require_once __DIR__ . '/templates/header.php';
   <!-- Step 2: Choose farm -->
   <div id="step-farm" style="display:none">
     <div class="list-item" style="margin-bottom:12px;background:var(--surface-2,#f5f5f5);border-radius:8px;padding:12px 16px">
-      <div class="item-body"><div class="item-sub">Herd</div><div class="item-title" id="chosen-herd-name"></div></div>
-      <button class="btn btn-secondary btn-sm" onclick="restart()">Change</button>
+      <div class="item-body"><div class="item-sub"><?= t('herd') ?></div><div class="item-title" id="chosen-herd-name"></div></div>
+      <button class="btn btn-secondary btn-sm" onclick="restart()"><?= t('change') ?></button>
     </div>
-    <p class="text-muted text-sm" style="margin-bottom:12px">Step 2 of 4 — Select destination farm</p>
+    <p class="text-muted text-sm" style="margin-bottom:12px"><?= t('step_2_select_farm') ?></p>
     <div class="list-card">
       <?php foreach ($farms as $f): ?>
       <button class="list-item" data-id="<?= $f['id'] ?>" data-name="<?= htmlspecialchars($f['name']) ?>"
@@ -51,14 +51,14 @@ require_once __DIR__ . '/templates/header.php';
   <!-- Step 3: Choose camp -->
   <div id="step-camp" style="display:none">
     <div class="list-item" style="margin-bottom:8px;background:var(--surface-2,#f5f5f5);border-radius:8px;padding:12px 16px">
-      <div class="item-body"><div class="item-sub">Herd</div><div class="item-title" id="chosen-herd-name-2"></div></div>
-      <button class="btn btn-secondary btn-sm" onclick="restart()">Change</button>
+      <div class="item-body"><div class="item-sub"><?= t('herd') ?></div><div class="item-title" id="chosen-herd-name-2"></div></div>
+      <button class="btn btn-secondary btn-sm" onclick="restart()"><?= t('change') ?></button>
     </div>
     <div class="list-item" style="margin-bottom:12px;background:var(--surface-2,#f5f5f5);border-radius:8px;padding:12px 16px">
-      <div class="item-body"><div class="item-sub">Farm</div><div class="item-title" id="chosen-farm-name"></div></div>
-      <button class="btn btn-secondary btn-sm" onclick="goToStep('step-farm')">Change</button>
+      <div class="item-body"><div class="item-sub"><?= t('farm') ?></div><div class="item-title" id="chosen-farm-name"></div></div>
+      <button class="btn btn-secondary btn-sm" onclick="goToStep('step-farm')"><?= t('change') ?></button>
     </div>
-    <p class="text-muted text-sm" style="margin-bottom:12px">Step 3 of 4 — Select new camp</p>
+    <p class="text-muted text-sm" style="margin-bottom:12px"><?= t('step_3_select_camp') ?></p>
     <div id="camp-loading" class="page-loader" style="min-height:80px;display:none"><div class="spinner"></div></div>
     <div id="camp-list" class="list-card"></div>
   </div>
@@ -66,23 +66,23 @@ require_once __DIR__ . '/templates/header.php';
   <!-- Step 4: Date -->
   <div id="step-date" style="display:none">
     <div class="list-item" style="margin-bottom:8px;background:var(--surface-2,#f5f5f5);border-radius:8px;padding:12px 16px">
-      <div class="item-body"><div class="item-sub">Herd</div><div class="item-title" id="chosen-herd-name-3"></div></div>
-      <button class="btn btn-secondary btn-sm" onclick="restart()">Change</button>
+      <div class="item-body"><div class="item-sub"><?= t('herd') ?></div><div class="item-title" id="chosen-herd-name-3"></div></div>
+      <button class="btn btn-secondary btn-sm" onclick="restart()"><?= t('change') ?></button>
     </div>
     <div class="list-item" style="margin-bottom:8px;background:var(--surface-2,#f5f5f5);border-radius:8px;padding:12px 16px">
-      <div class="item-body"><div class="item-sub">Farm</div><div class="item-title" id="chosen-farm-name-2"></div></div>
-      <button class="btn btn-secondary btn-sm" onclick="goToStep('step-farm')">Change</button>
+      <div class="item-body"><div class="item-sub"><?= t('farm') ?></div><div class="item-title" id="chosen-farm-name-2"></div></div>
+      <button class="btn btn-secondary btn-sm" onclick="goToStep('step-farm')"><?= t('change') ?></button>
     </div>
     <div class="list-item" style="margin-bottom:16px;background:var(--surface-2,#f5f5f5);border-radius:8px;padding:12px 16px">
-      <div class="item-body"><div class="item-sub">New Camp</div><div class="item-title" id="chosen-camp-name"></div></div>
-      <button class="btn btn-secondary btn-sm" onclick="goToStep('step-camp')">Change</button>
+      <div class="item-body"><div class="item-sub"><?= t('new_camp') ?></div><div class="item-title" id="chosen-camp-name"></div></div>
+      <button class="btn btn-secondary btn-sm" onclick="goToStep('step-camp')"><?= t('change') ?></button>
     </div>
-    <p class="text-muted text-sm" style="margin-bottom:12px">Step 4 of 4 — Entry date into new camp</p>
+    <p class="text-muted text-sm" style="margin-bottom:12px"><?= t('step_4_enter_date') ?></p>
     <div class="form-group">
-      <label class="form-label">Date Entering Camp <span class="required">*</span></label>
+      <label class="form-label"><?= t('date_entering_camp') ?> <span class="required">*</span></label>
       <input type="date" id="move-date" class="form-control" value="<?= date('Y-m-d') ?>">
     </div>
-    <button class="btn btn-primary btn-full btn-lg" id="save-btn" onclick="saveMove()">Move Herd</button>
+    <button class="btn btn-primary btn-full btn-lg" id="save-btn" onclick="saveMove()"><?= t('move_herd') ?></button>
   </div>
 
   <div id="save-result" style="margin-top:16px"></div>
@@ -90,11 +90,24 @@ require_once __DIR__ . '/templates/header.php';
 </div>
 
 <script>
+const TM = <?= json_encode([
+  'no_herds_found'     => t('no_herds_found'),
+  'no_camps_on_farm'   => t('no_camps_on_farm'),
+  'herd_moved'         => t('herd_moved'),
+  'move_another'       => t('move_another'),
+  'moving_label'       => t('moving_label'),
+  'moved_to'           => t('moved_to'),
+  'please_select_date' => t('please_select_date'),
+  'error_moving_herd'  => t('error_moving_herd'),
+  'move_herd'          => t('move_herd'),
+  'quick_actions'      => t('quick_actions'),
+  'animals_count'      => t('animals_count'),
+]) ?>;
+
 let selectedHerd = null;
 let selectedFarm = null;
 let selectedCamp = null;
 
-// Load herds on page load
 fetch('/api/herds.php')
   .then(r => r.json())
   .then(res => {
@@ -102,7 +115,7 @@ fetch('/api/herds.php')
     const el = document.getElementById('herd-list');
     el.style.display = 'block';
     if (!res.data?.length) {
-      el.innerHTML = '<div class="p-16 text-muted text-sm">No herds found.</div>';
+      el.innerHTML = `<div class="p-16 text-muted text-sm">${TM.no_herds_found}</div>`;
       return;
     }
     el.innerHTML = res.data.map(h =>
@@ -110,7 +123,7 @@ fetch('/api/herds.php')
         onclick="selectHerd(this)" style="cursor:pointer;width:100%;text-align:left;background:none;border:none;">
         <div class="item-body">
           <div class="item-title">${escHtml(h.name)}</div>
-          <div class="item-sub">${escHtml(h.farm_name || '')}${h.camp_name ? ' · ' + escHtml(h.camp_name) : ''} · ${h.animal_count} animals</div>
+          <div class="item-sub">${escHtml(h.farm_name || '')}${h.camp_name ? ' · ' + escHtml(h.camp_name) : ''} · ${h.animal_count} ${TM.animals_count}</div>
         </div>
         <svg class="chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
       </button>`
@@ -143,7 +156,7 @@ function loadCamps(farmId) {
     .then(res => {
       loader.style.display = 'none';
       if (!res.data?.length) {
-        list.innerHTML = '<div class="p-16 text-muted text-sm">No camps on this farm.</div>';
+        list.innerHTML = `<div class="p-16 text-muted text-sm">${TM.no_camps_on_farm}</div>`;
         return;
       }
       list.innerHTML = res.data.map(c =>
@@ -180,14 +193,13 @@ function restart() {
 
 async function saveMove() {
   const date = document.getElementById('move-date').value;
-  if (!date) { alert('Please select a date.'); return; }
+  if (!date) { alert(TM.please_select_date); return; }
 
   const btn = document.getElementById('save-btn');
   btn.disabled = true;
-  btn.textContent = 'Moving…';
+  btn.textContent = TM.moving_label;
 
   try {
-    // Fetch current herd data first, then update farm_id, camp_id
     const herdRes = await fetch(`/api/herds.php?id=${selectedHerd.id}`).then(r => r.json());
     if (!herdRes.success) throw new Error('Could not load herd data.');
     const h = herdRes.data;
@@ -213,22 +225,22 @@ async function saveMove() {
       document.getElementById('save-result').innerHTML = `
         <div class="card" style="text-align:center;padding:24px">
           <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:var(--green);margin-bottom:12px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14l-4-4 1.41-1.41L10 13.17l6.59-6.59L18 8l-8 8z"/></svg>
-          <h3>Herd moved!</h3>
-          <p class="text-muted"><strong>${escHtml(selectedHerd.name)}</strong> moved to<br><strong>${escHtml(selectedCamp.name)}</strong> on <strong>${escHtml(selectedFarm.name)}</strong></p>
+          <h3>${TM.herd_moved}</h3>
+          <p class="text-muted"><strong>${escHtml(selectedHerd.name)}</strong> ${TM.moved_to} <strong>${escHtml(selectedCamp.name)}</strong> · <strong>${escHtml(selectedFarm.name)}</strong></p>
           <div style="display:flex;gap:8px;justify-content:center;margin-top:16px;flex-wrap:wrap">
-            <button class="btn btn-primary" onclick="location.reload()">Move Another</button>
-            <a href="/quick-actions.php" class="btn btn-secondary">Quick Actions</a>
+            <button class="btn btn-primary" onclick="location.reload()">${TM.move_another}</button>
+            <a href="/quick-actions.php" class="btn btn-secondary"><?= t('quick_actions') ?></a>
           </div>
         </div>`;
     } else {
-      alert(res.message || 'Error moving herd.');
+      alert(res.message || TM.error_moving_herd);
       btn.disabled = false;
-      btn.textContent = 'Move Herd';
+      btn.textContent = TM.move_herd;
     }
   } catch(e) {
     alert('Error: ' + e.message);
     btn.disabled = false;
-    btn.textContent = 'Move Herd';
+    btn.textContent = TM.move_herd;
   }
 }
 
